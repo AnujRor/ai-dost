@@ -64,7 +64,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   const processFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Kripya sirf images (JPG, PNG, WebP) upload karein.');
+      setSpeechError('Kripya sirf images (JPG, PNG, WebP) upload karein.');
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      setSpeechError('Photo bahut badi hai (15MB se zyada). Chhoti photo bhejein.');
       return;
     }
 
@@ -86,6 +90,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     if (e.target.files && e.target.files[0]) {
       processFile(e.target.files[0]);
     }
+    // Reset so choosing the same photo again still triggers onChange
+    e.target.value = '';
   };
 
   const handleToggleListening = () => {

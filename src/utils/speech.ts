@@ -8,6 +8,9 @@ class SpeechManager {
   constructor() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       this.synth = window.speechSynthesis;
+      // Chrome loads voices asynchronously; ask early so they're ready on first speak()
+      this.synth.getVoices();
+      this.synth.addEventListener?.('voiceschanged', () => this.synth?.getVoices());
     }
   }
 
@@ -36,13 +39,10 @@ class SpeechManager {
 
     // Pick best available Hindi/Indian English voice
     const voices = this.synth.getVoices();
-    const hindiVoice = voices.find(
-      (v) =>
-        v.lang.toLowerCase().includes('hi') ||
-        v.lang.toLowerCase().includes('in') ||
-        v.name.toLowerCase().includes('india') ||
-        v.name.toLowerCase().includes('hindi')
-    );
+    const hindiVoice =
+      voices.find((v) => v.lang.toLowerCase().startsWith('hi')) ||
+      voices.find((v) => v.lang.toLowerCase() === 'en-in' || v.lang.toLowerCase() === 'en_in') ||
+      voices.find((v) => /india|hindi/i.test(v.name));
 
     if (hindiVoice) {
       utterance.voice = hindiVoice;

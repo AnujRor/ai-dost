@@ -1,13 +1,12 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
-import { GoogleGenAI, ThinkingLevel } from '@google/genai';
-import { createServer as createViteServer } from 'vite';
+import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ limit: '25mb', extended: true }));
@@ -152,237 +151,204 @@ function buildSystemInstruction(personaTone?: string, mode?: string): string {
   return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}`;
 }
 
+const MISSING_KEY_MESSAGE = `⚠️ **Gemini API Key set nahi hai**
+
+AI Dost ko jawab dene ke liye ek **free** Gemini API key chahiye.
+
+**Free key lene ke aasan steps:**
+1. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) kholein aur apne Google account se login karein.
+2. **Create API key** par click karke key copy karein.
+3. Project folder mein \`.env\` file kholein aur likhein: \`GEMINI_API_KEY=aapki_key\`
+4. Server ko band karke dobara \`npm run dev\` chalayein.`;
+
+function hasApiKey(): boolean {
+  const key = process.env.GEMINI_API_KEY;
+  return Boolean(key && key.trim() && key !== 'MY_GEMINI_API_KEY');
+}
+
 // Format errors into friendly, instructive messages
 function formatErrorMessage(error: any): string {
   const errMsg = String(error?.message || error || '');
+  if (!hasApiKey()) {
+    return MISSING_KEY_MESSAGE;
+  }
+  if (errMsg.includes('API key not valid') || errMsg.includes('API_KEY_INVALID')) {
+    return `⚠️ **Gemini API Key galat hai**\n\n\`.env\` file mein jo \`GEMINI_API_KEY\` hai wo valid nahi hai. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) se nayi free key banakar \`.env\` mein daalein aur server restart karein.`;
+  }
   if (errMsg.includes('denied access') || errMsg.includes('PERMISSION_DENIED') || error?.status === 403 || error?.code === 403) {
-    return `⚠️ **Google AI Studio API Key Update Required**\n\nAapke current Gemini API Key ke project ko Google dwara access deny kiya gaya hai (\`PERMISSION_DENIED - Your project has been denied access\`).\n\n**Isse theek karne ke aasan steps:**\n1. AI Studio ke top-right **Settings > Secrets** par click karein.\n2. Wahan ek naya aur active **GEMINI_API_KEY** daalein ya select karein (aap [aistudio.google.com](https://aistudio.google.com) se naya key create kar sakte hain).\n3. Naya key save hote hi aapka **AI Dost** turant normal reply dena shuru kar dega!`;
+    return `⚠️ **Gemini API Key Update Required**\n\nAapke current Gemini API Key ke project ko Google dwara access deny kiya gaya hai (\`PERMISSION_DENIED\`).\n\n**Isse theek karne ke aasan steps:**\n1. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) se ek nayi free key banayein.\n2. \`.env\` file mein \`GEMINI_API_KEY\` update karein (AI Studio mein: **Settings > Secrets**).\n3. Server restart karte hi aapka **AI Dost** normal reply dena shuru kar dega!`;
   }
   if (errMsg.includes('quota') || errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED')) {
-    return `⚠️ **API Quota Limit Reach**\n\nGoogle Gemini API ka temporary quota limit reach ho gaya hai. Kripya thodi der baad dobara try karein ya **Settings > Secrets** se naya API key jodein.`;
+    return `⚠️ **API Quota Limit Reach**\n\nGoogle Gemini API ka free quota abhi khatam ho gaya hai. Kripya 1-2 minute baad dobara try karein.`;
   }
   return `Dost, server se connect karne mein thodi takneeki dikkat aayi hai: ${errMsg || 'Connection issue'}. Kripya ek baar dobara koshish karein.`;
 }
 
-// Helper function for ultra-fast streaming with auto-fallback to guarantee zero errors
-async function streamWithFallback(ai: any, contents: any[], systemInstruction: string, res: Response): Promise<{ success: boolean; isError?: boolean }> {
-  let lastError: any = null;
-
-  // Attempt 1: gemini-3.8-flash with ThinkingLevel.LOW (Recommended for low latency)
-  try {
-    const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-3.8-flash',
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-        thinkingConfig: {
-          thinkingLevel: ThinkingLevel.LOW,
-        },
-      },
-    });
-
-    for await (const chunk of responseStream) {
-      if (chunk.text) {
-        res.write(`data: ${JSON.stringify({ chunk: chunk.text })}\n\n`);
-      }
-    }
-    return { success: true };
-  } catch (err1: any) {
-    lastError = err1;
-  }
-
-  // Attempt 2: gemini-3.8-flash with standard config
-  try {
-    const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-3.8-flash',
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      },
-    });
-
-    for await (const chunk of responseStream) {
-      if (chunk.text) {
-        res.write(`data: ${JSON.stringify({ chunk: chunk.text })}\n\n`);
-      }
-    }
-    return { success: true };
-  } catch (err2: any) {
-    lastError = err2;
-  }
-
-  // Attempt 3: gemini-flash-latest fallback
-  try {
-    const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-flash-latest',
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      },
-    });
-
-    for await (const chunk of responseStream) {
-      if (chunk.text) {
-        res.write(`data: ${JSON.stringify({ chunk: chunk.text })}\n\n`);
-      }
-    }
-    return { success: true };
-  } catch (err3: any) {
-    lastError = err3;
-  }
-
-  // If all attempts failed, gracefully write the helpful friendly error explanation into the stream
-  const helpfulMessage = formatErrorMessage(lastError);
-  res.write(`data: ${JSON.stringify({ chunk: helpfulMessage })}\n\n`);
-  return { success: false, isError: true };
+// Free-tier models, tried in order. GEMINI_MODEL (optional) is tried first.
+function getModelCandidates(): string[] {
+  const preferred = process.env.GEMINI_MODEL?.trim();
+  const defaults = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+  return preferred ? [preferred, ...defaults.filter((m) => m !== preferred)] : defaults;
 }
 
-// Helper function for ultra-fast non-streaming generation with fallback
-async function generateWithFallback(ai: any, contents: any[] | string, systemInstruction: string): Promise<string> {
+// Errors that switching to another model can't fix — stop retrying
+function isFatalError(error: any): boolean {
+  const errMsg = String(error?.message || error || '');
+  return (
+    errMsg.includes('API key not valid') ||
+    errMsg.includes('API_KEY_INVALID') ||
+    errMsg.includes('PERMISSION_DENIED') ||
+    error?.status === 403
+  );
+}
+
+// Streaming with auto-fallback across models. Only falls back while nothing has been sent,
+// so the user never sees duplicated partial text.
+async function streamWithFallback(ai: GoogleGenAI, contents: any[], systemInstruction: string, res: Response): Promise<{ isError: boolean }> {
+  if (!hasApiKey()) {
+    res.write(`data: ${JSON.stringify({ chunk: MISSING_KEY_MESSAGE })}\n\n`);
+    return { isError: true };
+  }
+
   let lastError: any = null;
+  for (const model of getModelCandidates()) {
+    let wroteAnything = false;
+    try {
+      const responseStream = await ai.models.generateContentStream({
+        model,
+        contents,
+        config: { systemInstruction, temperature: 0.7 },
+      });
 
-  // Attempt 1: gemini-3.8-flash with ThinkingLevel.LOW
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-        thinkingConfig: {
-          thinkingLevel: ThinkingLevel.LOW,
-        },
-      },
-    });
-    if (response.text) return response.text;
-  } catch (err1: any) {
-    lastError = err1;
+      for await (const chunk of responseStream) {
+        if (res.destroyed) return { isError: false };
+        if (chunk.text) {
+          wroteAnything = true;
+          res.write(`data: ${JSON.stringify({ chunk: chunk.text })}\n\n`);
+        }
+      }
+      if (wroteAnything) return { isError: false };
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`[AI Dost] Model ${model} failed:`, err?.message || err);
+      if (wroteAnything) {
+        res.write(`data: ${JSON.stringify({ chunk: '\n\n_(Jawab beech mein ruk gaya, kripya dobara poochhein.)_' })}\n\n`);
+        return { isError: false };
+      }
+      if (isFatalError(err)) break;
+    }
   }
 
-  // Attempt 2: gemini-3.8-flash standard
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      },
-    });
-    if (response.text) return response.text;
-  } catch (err2: any) {
-    lastError = err2;
-  }
+  res.write(`data: ${JSON.stringify({ chunk: formatErrorMessage(lastError) })}\n\n`);
+  return { isError: true };
+}
 
-  // Attempt 3: gemini-flash-latest
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-flash-latest',
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      },
-    });
-    if (response.text) return response.text;
-  } catch (err3: any) {
-    lastError = err3;
-  }
+// Non-streaming generation with the same model fallback
+async function generateWithFallback(ai: GoogleGenAI, contents: any[] | string, systemInstruction: string): Promise<{ text: string; isError: boolean }> {
+  if (!hasApiKey()) return { text: MISSING_KEY_MESSAGE, isError: true };
 
-  // Return clean, user-friendly markdown explanation
-  return formatErrorMessage(lastError);
+  let lastError: any = null;
+  for (const model of getModelCandidates()) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents,
+        config: { systemInstruction, temperature: 0.7 },
+      });
+      if (response.text) return { text: response.text, isError: false };
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`[AI Dost] Model ${model} failed:`, err?.message || err);
+      if (isFatalError(err)) break;
+    }
+  }
+  return { text: formatErrorMessage(lastError), isError: true };
+}
+
+const IMAGE_ONLY_PROMPT =
+  'Kripya is photo/document ko dhyan se dekho aur aasan Hinglish bhasha mein samjhao ki isme kya likha hai aur mere liye kya important hai.';
+
+// Turn the client's previous messages + the new message into Gemini `contents`
+function buildContents(history: any, message?: string, image?: any): any[] {
+  const contents: any[] = [];
+  const recentHistory = Array.isArray(history) ? history.slice(-6) : [];
+  for (const item of recentHistory) {
+    if (!item || item.isError) continue;
+    if (item.role === 'user') {
+      const parts: any[] = [];
+      if (item.image?.data && item.image?.mimeType) {
+        parts.push({ inlineData: { data: item.image.data, mimeType: item.image.mimeType } });
+      }
+      parts.push({ text: item.text || IMAGE_ONLY_PROMPT });
+      contents.push({ role: 'user', parts });
+    } else if (item.role === 'assistant' && item.text) {
+      contents.push({ role: 'model', parts: [{ text: item.text }] });
+    }
+  }
+  // Conversation must start with a user turn
+  while (contents.length && contents[0].role !== 'user') contents.shift();
+
+  const currentParts: any[] = [];
+  if (image?.data && image?.mimeType) {
+    currentParts.push({ inlineData: { data: image.data, mimeType: image.mimeType } });
+  }
+  currentParts.push({ text: message || IMAGE_ONLY_PROMPT });
+  contents.push({ role: 'user', parts: currentParts });
+  return contents;
+}
+
+function resolveCategory(mode: string | undefined, message?: string, image?: any) {
+  if (mode === 'explain' || mode === 'emotional' || mode === 'advice' || mode === 'fun') return mode;
+  return detectCategory(message, image);
 }
 
 // API routes
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'ok',
-    hasApiKey: Boolean(process.env.GEMINI_API_KEY),
+    hasApiKey: hasApiKey(),
     time: new Date().toISOString(),
   });
 });
 
-// Fast SSE Streaming Chat endpoint (Ultra-low latency, words appear instantaneously)
+// Fast SSE Streaming Chat endpoint (words appear as they are generated)
 app.post('/api/chat/stream', async (req: Request, res: Response) => {
+  const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
+
+  if (!message && !image) {
+    return res.status(400).json({ error: 'Message ya image provide karein.' });
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
   try {
-    const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body;
-
-    if (!message && !image) {
-      return res.status(400).json({ error: 'Message ya image provide karein.' });
-    }
-
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache, no-transform');
-    res.setHeader('Connection', 'keep-alive');
-    res.flushHeaders?.();
-
     const ai = getGeminiClient();
     const systemInstruction = buildSystemInstruction(personaTone, mode);
-
-    const contents: any[] = [];
-    const recentHistory = Array.isArray(history) ? history.slice(-6) : [];
-    for (const item of recentHistory) {
-      if (item.role === 'user') {
-        const parts: any[] = [{ text: item.text || '' }];
-        if (item.image?.data && item.image?.mimeType) {
-          parts.push({
-            inlineData: {
-              data: item.image.data,
-              mimeType: item.image.mimeType,
-            },
-          });
-        }
-        contents.push({ role: 'user', parts });
-      } else if (item.role === 'assistant') {
-        contents.push({
-          role: 'model',
-          parts: [{ text: item.text || '' }],
-        });
-      }
-    }
-
-    const currentParts: any[] = [];
-    if (image?.data && image?.mimeType) {
-      currentParts.push({
-        inlineData: {
-          data: image.data,
-          mimeType: image.mimeType,
-        },
-      });
-    }
-    if (message) {
-      currentParts.push({ text: message });
-    } else if (image) {
-      currentParts.push({ text: 'Kripya is photo/document ko dhyan se dekho aur aasan Hinglish bhasha mein samjhao ki isme kya likha hai aur mere liye kya important hai.' });
-    }
-
-    contents.push({ role: 'user', parts: currentParts });
+    const contents = buildContents(history, message, image);
 
     const streamResult = await streamWithFallback(ai, contents, systemInstruction, res);
 
-    const detectedCategory = detectCategory(message, image);
-    const followUps = streamResult.isError
-      ? ['Settings > Secrets check karein', 'Dobara try karein']
-      : getFollowUps(detectedCategory);
+    const detectedCategory = resolveCategory(mode, message, image);
+    const followUps = streamResult.isError ? ['Dobara try karein'] : getFollowUps(detectedCategory);
 
-    res.write(`data: ${JSON.stringify({ done: true, isError: Boolean(streamResult.isError), category: detectedCategory, suggestedFollowUps: followUps })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, isError: streamResult.isError, category: detectedCategory, suggestedFollowUps: followUps })}\n\n`);
     res.end();
   } catch (error: any) {
     console.error('Streaming Chat API Error:', error);
-    const friendlyError = formatErrorMessage(error);
-    res.write(`data: ${JSON.stringify({ chunk: friendlyError })}\n\n`);
-    res.write(`data: ${JSON.stringify({ done: true, isError: true, category: 'general', suggestedFollowUps: ['Settings > Secrets check karein'] })}\n\n`);
+    res.write(`data: ${JSON.stringify({ chunk: formatErrorMessage(error) })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, isError: true, category: 'general', suggestedFollowUps: ['Dobara try karein'] })}\n\n`);
     res.end();
   }
 });
 
-// Standard non-streaming chat endpoint (Fast with multi-tier fallback)
+// Standard non-streaming chat endpoint (client falls back to this if streaming fails)
 app.post('/api/chat', async (req: Request, res: Response) => {
   try {
-    const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body;
+    const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
 
     if (!message && !image) {
       return res.status(400).json({ error: 'Message ya image provide karein.' });
@@ -390,72 +356,27 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
     const ai = getGeminiClient();
     const systemInstruction = buildSystemInstruction(personaTone, mode);
+    const contents = buildContents(history, message, image);
 
-    const contents: any[] = [];
-    const recentHistory = Array.isArray(history) ? history.slice(-6) : [];
-    for (const item of recentHistory) {
-      if (item.role === 'user') {
-        const parts: any[] = [{ text: item.text || '' }];
-        if (item.image?.data && item.image?.mimeType) {
-          parts.push({
-            inlineData: {
-              data: item.image.data,
-              mimeType: item.image.mimeType,
-            },
-          });
-        }
-        contents.push({ role: 'user', parts });
-      } else if (item.role === 'assistant') {
-        contents.push({
-          role: 'model',
-          parts: [{ text: item.text || '' }],
-        });
-      }
-    }
-
-    const currentParts: any[] = [];
-    if (image?.data && image?.mimeType) {
-      currentParts.push({
-        inlineData: {
-          data: image.data,
-          mimeType: image.mimeType,
-        },
-      });
-    }
-    if (message) {
-      currentParts.push({ text: message });
-    } else if (image) {
-      currentParts.push({ text: 'Kripya is photo/document ko dhyan se dekho aur aasan Hinglish bhasha mein samjhao ki isme kya likha hai aur mere liye kya important hai.' });
-    }
-
-    contents.push({ role: 'user', parts: currentParts });
-
-    const replyText = await generateWithFallback(ai, contents, systemInstruction);
-    const finalText = replyText || 'Dost, jawab taiyaar ho gaya!';
-    const isError = finalText.includes('Google AI Studio API Key Update Required') || finalText.includes('API Quota Limit Reach');
-    const detectedCategory = detectCategory(message, image);
-    const followUps = isError
-      ? ['Settings > Secrets check karein', 'Dobara try karein']
-      : getFollowUps(detectedCategory);
+    const { text, isError } = await generateWithFallback(ai, contents, systemInstruction);
+    const detectedCategory = resolveCategory(mode, message, image);
 
     res.json({
-      text: finalText,
+      text: text || 'Dost, jawab taiyaar ho gaya!',
       category: detectedCategory,
-      suggestedFollowUps: followUps,
+      suggestedFollowUps: isError ? ['Dobara try karein'] : getFollowUps(detectedCategory),
       isError,
     });
   } catch (error: any) {
     console.error('Chat API Error:', error);
-    res.status(500).json({
-      error: formatErrorMessage(error),
-    });
+    res.status(500).json({ error: formatErrorMessage(error) });
   }
 });
 
-// Quick booster generator (Ultra fast with multi-tier fallback)
+// Quick booster generator
 app.post('/api/quick-action', async (req: Request, res: Response) => {
   try {
-    const { actionType } = req.body;
+    const { actionType } = req.body || {};
     const ai = getGeminiClient();
 
     let prompt = '';
@@ -466,24 +387,30 @@ app.post('/api/quick-action', async (req: Request, res: Response) => {
     } else if (actionType === 'daily_thought') {
       prompt = 'Aaj ke din ke liye ek pyara, energetic aur inspiring "Dost Ka Sandesh / Daily Motivation" do (2-3 lines) with warm vibes.';
     } else if (actionType === 'paheli') {
-      prompt = 'Ek mazedaar desi paheli (riddle) poochho jiska jawab agle message mein pooch sako. Paheli aur uska hint do, par answer spoiler mein chhipa kar do.';
+      prompt = 'Ek mazedaar desi paheli (riddle) poochho. Paheli aur uska hint do, aur answer sabse neeche "Jawab:" ke saath do.';
     } else {
       prompt = 'Ek friendly dost ki tarah 2 lines mein poochho ki aaj main kis cheez mein madad karoon.';
     }
 
-    const replyText = await generateWithFallback(ai, prompt, BASE_SYSTEM_INSTRUCTION);
-
-    res.json({
-      text: replyText || '',
-    });
+    const { text, isError } = await generateWithFallback(ai, prompt, BASE_SYSTEM_INSTRUCTION);
+    res.json({ text, isError });
   } catch (error: any) {
     console.error('Quick action error:', error);
-    res.status(500).json({ error: error.message || 'Error executing quick action' });
+    res.status(500).json({ error: formatErrorMessage(error) });
   }
 });
 
+// Unknown API routes return JSON instead of the SPA page
+app.use('/api', (req: Request, res: Response) => {
+  res.status(404).json({ error: 'API route nahi mila.' });
+});
+
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
+  // `npm start` runs the bundled dist/server.cjs, so treat that as production too
+  const isProduction = process.env.NODE_ENV === 'production' || /\.cjs$/.test(process.argv[1] || '');
+
+  if (!isProduction) {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -497,8 +424,19 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0');
+  server.on('error', (err: any) => {
+    if (err?.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} pehle se kisi aur app ke paas hai. Dusra port use karein, jaise .env mein PORT=3001 likhein.`);
+      process.exit(1);
+    }
+    throw err;
+  });
+  server.on('listening', () => {
     console.log(`AI Dost server running on http://localhost:${PORT}`);
+    if (!hasApiKey()) {
+      console.warn('GEMINI_API_KEY set nahi hai. Free key yahan se lein: https://aistudio.google.com/apikey  ->  phir .env file mein GEMINI_API_KEY=... likhein');
+    }
   });
 }
 

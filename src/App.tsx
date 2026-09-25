@@ -90,7 +90,18 @@ export default function App() {
     try {
       localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
     } catch (e) {
-      console.warn('Failed to save sessions to localStorage', e);
+      // Photos can overflow the ~5MB storage limit; save chats without the photo data instead
+      try {
+        const withoutImages = sessions.map((s) => ({
+          ...s,
+          messages: s.messages.map((m) =>
+            m.image ? { ...m, image: { mimeType: m.image.mimeType, name: m.image.name, data: '' } } : m
+          ),
+        }));
+        localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(withoutImages));
+      } catch (e2) {
+        console.warn('Failed to save sessions to localStorage', e2);
+      }
     }
   }, [sessions]);
 
@@ -131,7 +142,8 @@ export default function App() {
       role: 'user',
       text: text.trim(),
       timestamp: Date.now(),
-      image,
+      // previewUrl is the same base64 data again — drop it so saved chats stay small
+      image: image ? { data: image.data, mimeType: image.mimeType, name: image.name } : undefined,
     };
 
     // Calculate updated title if first message
@@ -182,20 +194,24 @@ export default function App() {
     try {
       const modeToSend = forcedCategory || (selectedCategory === 'auto' ? undefined : selectedCategory);
 
+      // History = earlier messages only (the new message is sent separately as `message`)
+      const requestBody = JSON.stringify({
+        message: text.trim(),
+        image: image ? { data: image.data, mimeType: image.mimeType } : undefined,
+        history: messages.slice(-6).map((m) => ({
+          role: m.role,
+          text: m.text,
+          isError: m.isError,
+          image: m.image?.data ? { data: m.image.data, mimeType: m.image.mimeType } : undefined,
+        })),
+        personaTone: currentPersona.id,
+        mode: modeToSend,
+      });
+
       const response = await fetch('/api/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: text.trim(),
-          image: image ? { data: image.data, mimeType: image.mimeType } : undefined,
-          history: updatedMessages.map((m) => ({
-            role: m.role,
-            text: m.text,
-            image: m.image ? { data: m.image.data, mimeType: m.image.mimeType } : undefined,
-          })),
-          personaTone: currentPersona.id,
-          mode: modeToSend,
-        }),
+        body: requestBody,
       });
 
       if (!response.ok || !response.body) {
@@ -203,17 +219,7 @@ export default function App() {
         const fallbackRes = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text.trim(),
-            image: image ? { data: image.data, mimeType: image.mimeType } : undefined,
-            history: updatedMessages.map((m) => ({
-              role: m.role,
-              text: m.text,
-              image: m.image ? { data: m.image.data, mimeType: m.image.mimeType } : undefined,
-            })),
-            personaTone: currentPersona.id,
-            mode: modeToSend,
-          }),
+          body: requestBody,
         });
 
         if (!fallbackRes.ok) {

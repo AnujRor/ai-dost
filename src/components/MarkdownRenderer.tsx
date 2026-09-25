@@ -31,6 +31,16 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
 
   const formatInline = (text: string): string => {
     return text
+      // Escape HTML first so model output can never inject markup/scripts
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      // Links [text](https://...)
+      .replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-orange-700 underline font-semibold">$1</a>'
+      )
       // Bold
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-stone-900">$1</strong>')
       // Italic
@@ -47,21 +57,21 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
       flushList(index);
       formattedElements.push(
         <h4 key={`h4-${index}`} className="text-base font-bold text-stone-900 mt-3 mb-1.5 flex items-center gap-1.5">
-          {trimmed.replace('### ', '')}
+          <span dangerouslySetInnerHTML={{ __html: formatInline(trimmed.slice(4)) }} />
         </h4>
       );
     } else if (trimmed.startsWith('## ')) {
       flushList(index);
       formattedElements.push(
         <h3 key={`h3-${index}`} className="text-lg font-bold text-amber-950 mt-3.5 mb-1.5 flex items-center gap-1.5 border-b border-amber-200/60 pb-1">
-          {trimmed.replace('## ', '')}
+          <span dangerouslySetInnerHTML={{ __html: formatInline(trimmed.slice(3)) }} />
         </h3>
       );
     } else if (trimmed.startsWith('# ')) {
       flushList(index);
       formattedElements.push(
         <h2 key={`h2-${index}`} className="text-xl font-extrabold text-amber-950 mt-4 mb-2">
-          {trimmed.replace('# ', '')}
+          <span dangerouslySetInnerHTML={{ __html: formatInline(trimmed.slice(2)) }} />
         </h2>
       );
     }

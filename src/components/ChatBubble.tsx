@@ -36,9 +36,13 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   const categoryInfo = message.category ? CATEGORY_INFO[message.category] : null;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(message.text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard
+      ?.writeText(message.text)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {});
   };
 
   const handleToggleSpeak = () => {
@@ -101,7 +105,10 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             } ${message.isError ? 'border-rose-300 bg-rose-50/80 text-rose-900' : ''}`}
           >
             {/* Attached Image if any */}
-            {message.image && (
+            {message.image && !message.image.data && !message.image.previewUrl && (
+              <p className="text-[11px] opacity-80 mb-1.5 truncate">📎 {message.image.name || 'Photo'} (photo save nahi ho saki)</p>
+            )}
+            {message.image && (message.image.data || message.image.previewUrl) && (
               <div className="mb-2.5">
                 <div className="relative inline-block overflow-hidden rounded-xl border border-white/60 bg-stone-900/5 group/img">
                   <img
@@ -235,7 +242,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
       </div>
 
       {/* Image Full-screen Zoom Modal */}
-      {showImageZoom && message.image && (
+      {showImageZoom && message.image && (message.image.data || message.image.previewUrl) && (
         <div
           className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setShowImageZoom(false)}
