@@ -1,0 +1,6 @@
+{
+  "name": "AI Dost",
+  "description": "Aapka apna friendly all-in-one AI companion for simple explanations, emotional support, smart reply advice, and entertainment.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
