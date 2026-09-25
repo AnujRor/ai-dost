@@ -16,9 +16,6 @@ let aiClient: GoogleGenAI | null = null;
 function getGeminiClient(): GoogleGenAI {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.warn('GEMINI_API_KEY is not set in environment variables.');
-    }
     aiClient = new GoogleGenAI({
       apiKey: apiKey || '',
       httpOptions: {
@@ -151,19 +148,32 @@ function buildSystemInstruction(personaTone?: string, mode?: string): string {
   return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}`;
 }
 
-const MISSING_KEY_MESSAGE = `⚠️ **Gemini API Key set nahi hai**
+const MISSING_KEY_MESSAGE = `⚠️ **AI ki API Key set nahi hai**
 
-AI Dost ko jawab dene ke liye ek **free** Gemini API key chahiye.
+AI Dost ko jawab dene ke liye ek **free** API key chahiye.
 
-**Free key lene ke aasan steps:**
-1. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) kholein aur apne Google account se login karein.
-2. **Create API key** par click karke key copy karein.
-3. Project folder mein \`.env\` file kholein aur likhein: \`GEMINI_API_KEY=aapki_key\`
-4. Server ko band karke dobara \`npm run dev\` chalayein.`;
+**Free OpenRouter key lene ke aasan steps:**
+1. [openrouter.ai/keys](https://openrouter.ai/keys) kholein aur login karein (Google account se bhi ho jata hai).
+2. **Create Key** par click karke key copy karein.
+3. Project folder mein \`.env\` file kholein aur likhein: \`OPENROUTER_API_KEY=aapki_key\`
+4. Server ko band karke dobara \`npm run dev\` chalayein.
+
+_(Gemini key bhi chalegi: \`GEMINI_API_KEY=...\` — [aistudio.google.com/apikey](https://aistudio.google.com/apikey))_`;
+
+function isRealKey(key?: string): boolean {
+  return Boolean(key && key.trim() && !key.startsWith('MY_'));
+}
+
+function hasOpenRouterKey(): boolean {
+  return isRealKey(process.env.OPENROUTER_API_KEY);
+}
+
+function hasGeminiKey(): boolean {
+  return isRealKey(process.env.GEMINI_API_KEY);
+}
 
 function hasApiKey(): boolean {
-  const key = process.env.GEMINI_API_KEY;
-  return Boolean(key && key.trim() && key !== 'MY_GEMINI_API_KEY');
+  return hasOpenRouterKey() || hasGeminiKey();
 }
 
 // Format errors into friendly, instructive messages
@@ -172,99 +182,246 @@ function formatErrorMessage(error: any): string {
   if (!hasApiKey()) {
     return MISSING_KEY_MESSAGE;
   }
-  if (errMsg.includes('API key not valid') || errMsg.includes('API_KEY_INVALID')) {
+  if (error?.provider === 'openrouter') {
+    if (error.status === 401) {
+      return `⚠️ **OpenRouter API Key galat hai**\n\n\`.env\` file mein jo \`OPENROUTER_API_KEY\` hai wo valid nahi hai. [openrouter.ai/keys](https://openrouter.ai/keys) se nayi free key banakar \`.env\` mein daalein aur server restart karein.`;
+    }
+    if (errMsg.includes('data policy') || errMsg.includes('privacy')) {
+      return `⚠️ **OpenRouter setting badalni hogi**\n\nFree models use karne ke liye [openrouter.ai/settings/privacy](https://openrouter.ai/settings/privacy) par jaakar free model wali setting **ON** karein, phir dobara try karein.`;
+    }
+    if (error.status === 429) {
+      return `⚠️ **Free Limit Reach**\n\nOpenRouter ki free limit (har minute/din ki) abhi poori ho gayi hai. Kripya thodi der baad dobara try karein.`;
+    }
+  }
+  if (errMsg.includes('API key not valid') || errMsg.includes('API_KEY_INVALID') || errMsg.includes('UNAUTHENTICATED')) {
     return `⚠️ **Gemini API Key galat hai**\n\n\`.env\` file mein jo \`GEMINI_API_KEY\` hai wo valid nahi hai. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) se nayi free key banakar \`.env\` mein daalein aur server restart karein.`;
   }
   if (errMsg.includes('denied access') || errMsg.includes('PERMISSION_DENIED') || error?.status === 403 || error?.code === 403) {
-    return `⚠️ **Gemini API Key Update Required**\n\nAapke current Gemini API Key ke project ko Google dwara access deny kiya gaya hai (\`PERMISSION_DENIED\`).\n\n**Isse theek karne ke aasan steps:**\n1. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) se ek nayi free key banayein.\n2. \`.env\` file mein \`GEMINI_API_KEY\` update karein (AI Studio mein: **Settings > Secrets**).\n3. Server restart karte hi aapka **AI Dost** normal reply dena shuru kar dega!`;
+    return `⚠️ **Gemini API Key Update Required**\n\nGoogle ne aapke Gemini project ko access deny kar diya hai (\`PERMISSION_DENIED\`).\n\n**Isse theek karne ke aasan steps:**\n1. [openrouter.ai/keys](https://openrouter.ai/keys) se free key banakar \`.env\` mein \`OPENROUTER_API_KEY=...\` likhein, **ya**\n2. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) par **naye project** mein Gemini key banayein.\n3. Server restart karte hi aapka **AI Dost** normal reply dena shuru kar dega!`;
   }
   if (errMsg.includes('quota') || errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED')) {
-    return `⚠️ **API Quota Limit Reach**\n\nGoogle Gemini API ka free quota abhi khatam ho gaya hai. Kripya 1-2 minute baad dobara try karein.`;
+    return `⚠️ **API Quota Limit Reach**\n\nFree quota abhi khatam ho gaya hai. Kripya 1-2 minute baad dobara try karein.`;
   }
   return `Dost, server se connect karne mein thodi takneeki dikkat aayi hai: ${errMsg || 'Connection issue'}. Kripya ek baar dobara koshish karein.`;
 }
 
-// Free-tier models, tried in order. GEMINI_MODEL (optional) is tried first.
-function getModelCandidates(): string[] {
-  const preferred = process.env.GEMINI_MODEL?.trim();
-  // gemini-2.x models are no longer available to new API keys
-  const defaults = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
-  return preferred ? [preferred, ...defaults.filter((m) => m !== preferred)] : defaults;
+function withPreferred(preferred: string | undefined, defaults: string[]): string[] {
+  const p = preferred?.trim();
+  return p ? [p, ...defaults.filter((m) => m !== p)] : defaults;
 }
 
-// Errors that switching to another model can't fix — stop retrying
-function isFatalError(error: any): boolean {
+// Free OpenRouter models, tried in order. `openrouter/free` auto-picks any currently free model.
+function getOpenRouterModels(): string[] {
+  return withPreferred(process.env.OPENROUTER_MODEL, [
+    'openrouter/free',
+    'google/gemma-4-31b-it:free',
+    'qwen/qwen3.8-27b:free',
+  ]);
+}
+
+// Free-tier Gemini models (gemini-2.x is no longer available to new API keys)
+function getGeminiModels(): string[] {
+  return withPreferred(process.env.GEMINI_MODEL, [
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
+    'gemini-flash-latest',
+    'gemini-3.1-flash-lite',
+  ]);
+}
+
+// Errors that no other model of the same provider can fix (bad/blocked key)
+function isProviderFatal(error: any): boolean {
   const errMsg = String(error?.message || error || '');
+  if (error?.provider === 'openrouter') return error.status === 401 || error.status === 402;
   return (
     errMsg.includes('API key not valid') ||
     errMsg.includes('API_KEY_INVALID') ||
     errMsg.includes('PERMISSION_DENIED') ||
+    errMsg.includes('UNAUTHENTICATED') ||
+    error?.status === 401 ||
     error?.status === 403
   );
 }
 
-// Streaming with auto-fallback across models. Only falls back while nothing has been sent,
-// so the user never sees duplicated partial text.
-async function streamWithFallback(ai: GoogleGenAI, contents: any[], systemInstruction: string, res: Response): Promise<{ isError: boolean }> {
-  if (!hasApiKey()) {
-    res.write(`data: ${JSON.stringify({ chunk: MISSING_KEY_MESSAGE })}\n\n`);
-    return { isError: true };
+// Gemini-style `contents` -> OpenAI-style chat messages (used by OpenRouter)
+function toOpenAIMessages(contents: any[], systemInstruction: string): any[] {
+  const messages: any[] = [{ role: 'system', content: systemInstruction }];
+  for (const c of contents) {
+    const role = c.role === 'model' ? 'assistant' : 'user';
+    const hasImage = c.parts.some((p: any) => p.inlineData);
+    if (!hasImage) {
+      messages.push({ role, content: c.parts.map((p: any) => p.text || '').join('\n') });
+    } else {
+      messages.push({
+        role,
+        content: c.parts.map((p: any) =>
+          p.inlineData
+            ? { type: 'image_url', image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` } }
+            : { type: 'text', text: p.text || '' }
+        ),
+      });
+    }
+  }
+  return messages;
+}
+
+async function streamOpenRouter(model: string, contents: any[], systemInstruction: string, onText: (t: string) => void) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY!.trim()}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': isRealKey(process.env.APP_URL) ? process.env.APP_URL! : 'http://localhost',
+      'X-Title': 'AI Dost',
+    },
+    body: JSON.stringify({
+      model,
+      messages: toOpenAIMessages(contents, systemInstruction),
+      temperature: 0.7,
+      stream: true,
+    }),
+  });
+
+  if (!response.ok || !response.body) {
+    const raw = await response.text().catch(() => '');
+    let msg = raw;
+    try {
+      msg = JSON.parse(raw)?.error?.message || raw;
+    } catch {}
+    const err: any = new Error(`OpenRouter ${response.status}: ${msg || response.statusText}`);
+    err.status = response.status;
+    err.provider = 'openrouter';
+    throw err;
   }
 
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) return;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) continue; // skips ": OPENROUTER PROCESSING" keep-alives
+      const payload = trimmed.slice(5).trim();
+      if (payload === '[DONE]') return;
+      let json: any;
+      try {
+        json = JSON.parse(payload);
+      } catch {
+        continue;
+      }
+      if (json.error) {
+        const err: any = new Error(`OpenRouter: ${json.error.message || 'stream error'}`);
+        err.status = json.error.code;
+        err.provider = 'openrouter';
+        throw err;
+      }
+      const text = json.choices?.[0]?.delta?.content;
+      if (text) onText(text);
+    }
+  }
+}
+
+async function streamGemini(ai: GoogleGenAI, model: string, contents: any[], systemInstruction: string, onText: (t: string) => void) {
+  const responseStream = await ai.models.generateContentStream({
+    model,
+    contents,
+    config: { systemInstruction, temperature: 0.7 },
+  });
+  for await (const chunk of responseStream) {
+    if (chunk.text) onText(chunk.text);
+  }
+}
+
+type Attempt = {
+  provider: 'openrouter' | 'gemini';
+  model: string;
+  run: (onText: (t: string) => void) => Promise<void>;
+};
+
+// OpenRouter first (if its key is set), then Gemini as backup
+function getAttempts(ai: GoogleGenAI, contents: any[], systemInstruction: string): Attempt[] {
+  const attempts: Attempt[] = [];
+  if (hasOpenRouterKey()) {
+    for (const model of getOpenRouterModels()) {
+      attempts.push({ provider: 'openrouter', model, run: (onText) => streamOpenRouter(model, contents, systemInstruction, onText) });
+    }
+  }
+  if (hasGeminiKey()) {
+    for (const model of getGeminiModels()) {
+      attempts.push({ provider: 'gemini', model, run: (onText) => streamGemini(ai, model, contents, systemInstruction, onText) });
+    }
+  }
+  return attempts;
+}
+
+// Runs attempts in order until one produces text. Only falls back while nothing has been
+// emitted, so the user never sees duplicated partial text.
+async function runWithFallback(
+  ai: GoogleGenAI,
+  contents: any[],
+  systemInstruction: string,
+  onText: (t: string) => void,
+  isCancelled: () => boolean = () => false
+): Promise<{ isError: boolean; errorText?: string; interrupted?: boolean }> {
+  if (!hasApiKey()) return { isError: true, errorText: MISSING_KEY_MESSAGE };
+
   let lastError: any = null;
-  for (const model of getModelCandidates()) {
+  let firstFatalError: any = null; // a bad key on the main provider is the most useful thing to report
+  const blockedProviders = new Set<string>();
+  for (const attempt of getAttempts(ai, contents, systemInstruction)) {
+    if (blockedProviders.has(attempt.provider)) continue;
     let wroteAnything = false;
     try {
-      const responseStream = await ai.models.generateContentStream({
-        model,
-        contents,
-        config: { systemInstruction, temperature: 0.7 },
+      await attempt.run((text) => {
+        if (isCancelled()) return;
+        wroteAnything = true;
+        onText(text);
       });
-
-      for await (const chunk of responseStream) {
-        if (res.destroyed) return { isError: false };
-        if (chunk.text) {
-          wroteAnything = true;
-          res.write(`data: ${JSON.stringify({ chunk: chunk.text })}\n\n`);
-        }
-      }
-      if (wroteAnything) return { isError: false };
+      if (wroteAnything || isCancelled()) return { isError: false };
     } catch (err: any) {
       lastError = err;
-      console.warn(`[AI Dost] Model ${model} failed:`, err?.message || err);
-      if (wroteAnything) {
-        res.write(`data: ${JSON.stringify({ chunk: '\n\n_(Jawab beech mein ruk gaya, kripya dobara poochhein.)_' })}\n\n`);
-        return { isError: false };
+      console.warn(`[AI Dost] ${attempt.provider}/${attempt.model} failed:`, err?.message || err);
+      if (wroteAnything) return { isError: false, interrupted: true };
+      if (isProviderFatal(err)) {
+        blockedProviders.add(attempt.provider);
+        firstFatalError ??= err;
       }
-      if (isFatalError(err)) break;
     }
   }
-
-  res.write(`data: ${JSON.stringify({ chunk: formatErrorMessage(lastError) })}\n\n`);
-  return { isError: true };
+  return { isError: true, errorText: formatErrorMessage(firstFatalError ?? lastError) };
 }
 
-// Non-streaming generation with the same model fallback
+async function streamWithFallback(ai: GoogleGenAI, contents: any[], systemInstruction: string, res: Response): Promise<{ isError: boolean }> {
+  const result = await runWithFallback(
+    ai,
+    contents,
+    systemInstruction,
+    (text) => res.write(`data: ${JSON.stringify({ chunk: text })}\n\n`),
+    () => res.destroyed
+  );
+  if (result.interrupted) {
+    res.write(`data: ${JSON.stringify({ chunk: '\n\n_(Jawab beech mein ruk gaya, kripya dobara poochhein.)_' })}\n\n`);
+  }
+  if (result.errorText) {
+    res.write(`data: ${JSON.stringify({ chunk: result.errorText })}\n\n`);
+  }
+  return { isError: result.isError };
+}
+
 async function generateWithFallback(ai: GoogleGenAI, contents: any[] | string, systemInstruction: string): Promise<{ text: string; isError: boolean }> {
-  if (!hasApiKey()) return { text: MISSING_KEY_MESSAGE, isError: true };
-
-  let lastError: any = null;
-  for (const model of getModelCandidates()) {
-    try {
-      const response = await ai.models.generateContent({
-        model,
-        contents,
-        config: { systemInstruction, temperature: 0.7 },
-      });
-      if (response.text) return { text: response.text, isError: false };
-    } catch (err: any) {
-      lastError = err;
-      console.warn(`[AI Dost] Model ${model} failed:`, err?.message || err);
-      if (isFatalError(err)) break;
-    }
-  }
-  return { text: formatErrorMessage(lastError), isError: true };
+  const normalized = typeof contents === 'string' ? [{ role: 'user', parts: [{ text: contents }] }] : contents;
+  let text = '';
+  const result = await runWithFallback(ai, normalized, systemInstruction, (t) => {
+    text += t;
+  });
+  return result.isError ? { text: result.errorText || '', isError: true } : { text, isError: false };
 }
+
 
 const IMAGE_ONLY_PROMPT =
   'Kripya is photo/document ko dhyan se dekho aur aasan Hinglish bhasha mein samjhao ki isme kya likha hai aur mere liye kya important hai.';
@@ -436,7 +593,7 @@ async function startServer() {
   server.on('listening', () => {
     console.log(`AI Dost server running on http://localhost:${PORT}`);
     if (!hasApiKey()) {
-      console.warn('GEMINI_API_KEY set nahi hai. Free key yahan se lein: https://aistudio.google.com/apikey  ->  phir .env file mein GEMINI_API_KEY=... likhein');
+      console.warn('API key set nahi hai. Free key: https://openrouter.ai/keys  ->  phir .env file mein OPENROUTER_API_KEY=... likhein');
     }
   });
 }
