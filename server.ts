@@ -187,7 +187,8 @@ function formatErrorMessage(error: any): string {
 // Free-tier models, tried in order. GEMINI_MODEL (optional) is tried first.
 function getModelCandidates(): string[] {
   const preferred = process.env.GEMINI_MODEL?.trim();
-  const defaults = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+  // gemini-2.x models are no longer available to new API keys
+  const defaults = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
   return preferred ? [preferred, ...defaults.filter((m) => m !== preferred)] : defaults;
 }
 

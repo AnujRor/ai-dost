@@ -31,5 +31,5 @@ npm start
 | Variable | Kaam |
 | --- | --- |
 | `GEMINI_API_KEY` | Zaroori. Free key aistudio.google.com se |
-| `GEMINI_MODEL` | Koi specific model pehle try karna ho (default: `gemini-flash-latest` → `gemini-2.5-flash` → `gemini-2.0-flash`) |
+| `GEMINI_MODEL` | Koi specific model pehle try karna ho (default: `gemini-3.8-flash` → `gemini-3.5-flash` → `gemini-flash-latest` → `gemini-3.1-flash-lite`) |
 | `PORT` | Server port (default 3000) |
