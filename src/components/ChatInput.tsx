@@ -19,6 +19,29 @@ interface ChatInputProps {
   onCategoryChange: (cat: DostCategory | 'auto') => void;
 }
 
+// Resize to at most MAX_SIDE px and re-encode as JPEG; small images are returned unchanged
+const MAX_SIDE = 1600;
+function compressImage(dataUrl: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, MAX_SIDE / Math.max(img.width, img.height));
+      if (scale === 1 && dataUrl.length < 1_000_000) return resolve(dataUrl);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return resolve(dataUrl);
+      ctx.fillStyle = '#fff'; // transparent PNGs would otherwise turn black in JPEG
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSendMessage,
   isLoading,
@@ -73,12 +96,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      const base64Data = result.split(',')[1];
+    reader.onload = async (e) => {
+      const original = e.target?.result as string;
+      // Shrink big phone photos so the request stays under Vercel's 4.5MB body limit
+      const result = await compressImage(original).catch(() => original);
+      const mimeType = result.slice(5, result.indexOf(';'));
       setAttachedImage({
-        data: base64Data,
-        mimeType: file.type,
+        data: result.split(',')[1],
+        mimeType,
         name: file.name,
         previewUrl: result,
       });

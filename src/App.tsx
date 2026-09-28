@@ -224,7 +224,10 @@ export default function App() {
 
         if (!fallbackRes.ok) {
           const errorData = await fallbackRes.json().catch(() => ({}));
-          throw new Error(errorData.error || 'Server error occurred');
+          if (fallbackRes.status === 413) {
+            throw new Error('Photo ya chat bahut badi hai, chhoti photo bhejein ya naya chat shuru karein');
+          }
+          throw new Error(errorData.error || `Server error (${fallbackRes.status})`);
         }
 
         const data = await fallbackRes.json();
