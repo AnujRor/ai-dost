@@ -164,6 +164,10 @@ function isRealKey(key?: string): boolean {
   return Boolean(key && key.trim() && !key.startsWith('MY_'));
 }
 
+function hasGroqKey(): boolean {
+  return isRealKey(process.env.GROQ_API_KEY);
+}
+
 function hasOpenRouterKey(): boolean {
   return isRealKey(process.env.OPENROUTER_API_KEY);
 }
@@ -173,7 +177,7 @@ function hasGeminiKey(): boolean {
 }
 
 function hasApiKey(): boolean {
-  return hasOpenRouterKey() || hasGeminiKey();
+  return hasGroqKey() || hasOpenRouterKey() || hasGeminiKey();
 }
 
 // Format errors into friendly, instructive messages
@@ -181,6 +185,14 @@ function formatErrorMessage(error: any): string {
   const errMsg = String(error?.message || error || '');
   if (!hasApiKey()) {
     return MISSING_KEY_MESSAGE;
+  }
+  if (error?.provider === 'groq') {
+    if (error.status === 401) {
+      return `⚠️ **Groq API Key galat hai**\n\n\`.env\` file mein jo \`GROQ_API_KEY\` hai wo valid nahi hai. [console.groq.com/keys](https://console.groq.com/keys) se nayi free key banakar \`.env\` mein daalein aur server restart karein.`;
+    }
+    if (error.status === 429) {
+      return `⚠️ **Free Limit Reach**\n\nGroq ki free limit abhi poori ho gayi hai. Kripya thodi der baad dobara try karein.`;
+    }
   }
   if (error?.provider === 'openrouter') {
     if (error.status === 401) {
@@ -210,6 +222,13 @@ function withPreferred(preferred: string | undefined, defaults: string[]): strin
   return p ? [p, ...defaults.filter((m) => m !== p)] : defaults;
 }
 
+// Groq models, tried in order. gpt-oss models are text-only, so image requests go to qwen first.
+function getGroqModels(hasImage: boolean): string[] {
+  const vision = 'qwen/qwen3.8-27b';
+  const text = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+  return withPreferred(process.env.GROQ_MODEL, hasImage ? [vision, ...text] : [...text, vision]);
+}
+
 // Free OpenRouter models, tried in order. `openrouter/free` auto-picks any currently free model.
 function getOpenRouterModels(): string[] {
   return withPreferred(process.env.OPENROUTER_MODEL, [
@@ -232,7 +251,7 @@ function getGeminiModels(): string[] {
 // Errors that no other model of the same provider can fix (bad/blocked key)
 function isProviderFatal(error: any): boolean {
   const errMsg = String(error?.message || error || '');
-  if (error?.provider === 'openrouter') return error.status === 401 || error.status === 402;
+  if (error?.provider === 'openrouter' || error?.provider === 'groq') return error.status === 401 || error.status === 402;
   return (
     errMsg.includes('API key not valid') ||
     errMsg.includes('API_KEY_INVALID') ||
@@ -265,15 +284,41 @@ function toOpenAIMessages(contents: any[], systemInstruction: string): any[] {
   return messages;
 }
 
-async function streamOpenRouter(model: string, contents: any[], systemInstruction: string, onText: (t: string) => void) {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
+type OpenAICompatibleProvider = 'groq' | 'openrouter';
+
+const PROVIDER_NAMES: Record<OpenAICompatibleProvider, string> = { groq: 'Groq', openrouter: 'OpenRouter' };
+
+function providerRequest(provider: OpenAICompatibleProvider): { url: string; headers: Record<string, string> } {
+  if (provider === 'groq') {
+    return {
+      url: 'https://api.groq.com/openai/v1/chat/completions',
+      headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY!.trim()}`, 'Content-Type': 'application/json' },
+    };
+  }
+  return {
+    url: 'https://openrouter.ai/api/v1/chat/completions',
     headers: {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY!.trim()}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': isRealKey(process.env.APP_URL) ? process.env.APP_URL! : 'http://localhost',
       'X-Title': 'AI Dost',
     },
+  };
+}
+
+// Groq and OpenRouter both speak the OpenAI chat-completions streaming format
+async function streamOpenAICompatible(
+  provider: OpenAICompatibleProvider,
+  model: string,
+  contents: any[],
+  systemInstruction: string,
+  onText: (t: string) => void
+) {
+  const { url, headers } = providerRequest(provider);
+  const name = PROVIDER_NAMES[provider];
+  const response = await fetch(url, {
+    method: 'POST',
+    headers,
     body: JSON.stringify({
       model,
       messages: toOpenAIMessages(contents, systemInstruction),
@@ -288,9 +333,9 @@ async function streamOpenRouter(model: string, contents: any[], systemInstructio
     try {
       msg = JSON.parse(raw)?.error?.message || raw;
     } catch {}
-    const err: any = new Error(`OpenRouter ${response.status}: ${msg || response.statusText}`);
+    const err: any = new Error(`${name} ${response.status}: ${msg || response.statusText}`);
     err.status = response.status;
-    err.provider = 'openrouter';
+    err.provider = provider;
     throw err;
   }
 
@@ -315,9 +360,9 @@ async function streamOpenRouter(model: string, contents: any[], systemInstructio
         continue;
       }
       if (json.error) {
-        const err: any = new Error(`OpenRouter: ${json.error.message || 'stream error'}`);
+        const err: any = new Error(`${name}: ${json.error.message || 'stream error'}`);
         err.status = json.error.code;
-        err.provider = 'openrouter';
+        err.provider = provider;
         throw err;
       }
       const text = json.choices?.[0]?.delta?.content;
@@ -338,17 +383,23 @@ async function streamGemini(ai: GoogleGenAI, model: string, contents: any[], sys
 }
 
 type Attempt = {
-  provider: 'openrouter' | 'gemini';
+  provider: OpenAICompatibleProvider | 'gemini';
   model: string;
   run: (onText: (t: string) => void) => Promise<void>;
 };
 
-// OpenRouter first (if its key is set), then Gemini as backup
+// Groq first, then OpenRouter and Gemini as backups (each only if its key is set)
 function getAttempts(ai: GoogleGenAI, contents: any[], systemInstruction: string): Attempt[] {
   const attempts: Attempt[] = [];
+  if (hasGroqKey()) {
+    const hasImage = contents.some((c) => c.parts.some((p: any) => p.inlineData));
+    for (const model of getGroqModels(hasImage)) {
+      attempts.push({ provider: 'groq', model, run: (onText) => streamOpenAICompatible('groq', model, contents, systemInstruction, onText) });
+    }
+  }
   if (hasOpenRouterKey()) {
     for (const model of getOpenRouterModels()) {
-      attempts.push({ provider: 'openrouter', model, run: (onText) => streamOpenRouter(model, contents, systemInstruction, onText) });
+      attempts.push({ provider: 'openrouter', model, run: (onText) => streamOpenAICompatible('openrouter', model, contents, systemInstruction, onText) });
     }
   }
   if (hasGeminiKey()) {
