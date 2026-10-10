@@ -70,6 +70,8 @@ Read this section before changing code. It describes how the app is wired, what 
 | `src/App.tsx` | Chat state, sends requests to `/api/chat/stream` (SSE), falls back to `/api/chat`, shows errors. |
 | `src/components/ChatInput.tsx` | Text/voice/photo input. `compressImage()` resizes photos (max 1600px, JPEG 0.85) before sending. |
 | `src/data/dostPresets.ts` | Personas / preset prompts. |
+| `index.html` | Vite entry HTML. All on-page SEO lives here: title/description/keywords, Open Graph + Twitter cards, canonical URL, JSON-LD (`WebApplication` + `Person` "Anuj Ror" + `FAQPage`), favicon/manifest links, and a `<noscript>` fallback. |
+| `public/` | Static assets (copied to `dist/` as-is): `favicon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `og-image.png`, `robots.txt`, `sitemap.xml`, `site.webmanifest`. |
 | `.env.example` | All env vars with comments. `.env` is git-ignored. |
 
 ### API
@@ -134,6 +136,7 @@ curl -s -X POST localhost:3000/api/chat -H "content-type: application/json" -d "
 
 **Done**
 - **Fixed live Vercel error** `Headers.append: ... is an invalid header value`: the `GROQ_API_KEY` env var on Vercel contained the key repeated across several lines. `server.ts` now reads every provider key through `getEnvKey()` (trap #8), which keeps only the first whitespace-delimited token, so multi-line/repeated values no longer break the `Authorization` header.
+- **On-page SEO** — `index.html` now has full meta tags (title/description/keywords/author), Open Graph + Twitter cards, canonical URL, JSON-LD (`WebApplication`, `Person` "Anuj Ror", `FAQPage`) and a `<noscript>` fallback; new `public/` assets add favicon/icons, `og-image.png`, `robots.txt`, `sitemap.xml` and `site.webmanifest`. This also removes the `/favicon.ico` 404 that showed in the browser console.
 
 **Verified**
 - Server with a multi-line/repeated `GROQ_API_KEY` now returns real answers (previously invalid-header error).
