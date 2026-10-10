@@ -15,7 +15,7 @@ let aiClient: GoogleGenAI | null = null;
 
 function getGeminiClient(): GoogleGenAI {
   if (!aiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = getEnvKey('GEMINI_API_KEY');
     aiClient = new GoogleGenAI({
       apiKey: apiKey || '',
       httpOptions: {
@@ -160,20 +160,26 @@ AI Dost ko jawab dene ke liye ek **free** API key chahiye.
 
 _(Gemini key bhi chalegi: \`GEMINI_API_KEY=...\` — [aistudio.google.com/apikey](https://aistudio.google.com/apikey))_`;
 
+// Vercel/env values sometimes arrive with stray whitespace or newlines (e.g. the same
+// key pasted more than once). HTTP headers reject newlines, so keep only the first token.
+function getEnvKey(name: string): string {
+  return (process.env[name] || '').trim().split(/\s+/)[0] || '';
+}
+
 function isRealKey(key?: string): boolean {
   return Boolean(key && key.trim() && !key.startsWith('MY_'));
 }
 
 function hasGroqKey(): boolean {
-  return isRealKey(process.env.GROQ_API_KEY);
+  return isRealKey(getEnvKey('GROQ_API_KEY'));
 }
 
 function hasOpenRouterKey(): boolean {
-  return isRealKey(process.env.OPENROUTER_API_KEY);
+  return isRealKey(getEnvKey('OPENROUTER_API_KEY'));
 }
 
 function hasGeminiKey(): boolean {
-  return isRealKey(process.env.GEMINI_API_KEY);
+  return isRealKey(getEnvKey('GEMINI_API_KEY'));
 }
 
 function hasApiKey(): boolean {
@@ -292,13 +298,13 @@ function providerRequest(provider: OpenAICompatibleProvider): { url: string; hea
   if (provider === 'groq') {
     return {
       url: 'https://api.groq.com/openai/v1/chat/completions',
-      headers: { Authorization: `Bearer ${process.env.GROQ_API_KEY!.trim()}`, 'Content-Type': 'application/json' },
+      headers: { Authorization: `Bearer ${getEnvKey('GROQ_API_KEY')}`, 'Content-Type': 'application/json' },
     };
   }
   return {
     url: 'https://openrouter.ai/api/v1/chat/completions',
     headers: {
-      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY!.trim()}`,
+      Authorization: `Bearer ${getEnvKey('OPENROUTER_API_KEY')}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': isRealKey(process.env.APP_URL) ? process.env.APP_URL! : 'http://localhost',
       'X-Title': 'AI Dost',
