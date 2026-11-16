@@ -101,7 +101,7 @@ AI/key errors are returned as **HTTP 200 with `isError: true`** and a friendly H
 
 ### Internationalisation (13 languages)
 
-- The globe button in the header (`LanguagePicker`) switches the **whole screen** between 13 languages: हिंदी, English, বাংলা, தமிழ், తెలుగు, मराठी, ગુજરાતી, ਪੰਜਾਬੀ, اردو, العربية, Español, Français, 中文.
+- The globe button in the header (`LanguagePicker`) switches the **whole screen** between 13 languages: हिंदी, English, বাংলা, தமிழ், తెలుగు, मराठी, ગુજરાતી, ਪੰਜਾਬੀ, اردو, العربية, Español, Français, 中文. The picker always shows the **English name** of each language (Hindi, Bengali, Tamil…), with the native name in small grey text next to it.
 - Every UI string (buttons, placeholders, tooltips, modals, personas, quick prompts, sample documents, error messages) comes from `t('key')`; nothing is hardcoded in the components any more.
 - `hi.ts` is the source of truth for the 225 keys. Each other locale file is typed `Record<TranslationKey, string>`, so a missing or misspelled key breaks `npm run lint` instead of silently showing English.
 - The chosen language is stored in `localStorage` and also drives `<html lang>`/`dir` (Arabic/Urdu flip to RTL), the chat timestamp format, the speech-recognition language and the text-to-speech voice.

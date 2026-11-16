@@ -33,7 +33,7 @@ export const LanguagePicker: React.FC = () => {
         aria-expanded={open}
       >
         <Globe className="w-3.5 h-3.5 text-orange-500" />
-        <span className="max-w-[80px] sm:max-w-none truncate">{current.native}</span>
+        <span className="max-w-[90px] sm:max-w-none truncate">{current.english}</span>
       </button>
 
       {open && (
@@ -60,8 +60,8 @@ export const LanguagePicker: React.FC = () => {
                   : 'text-gray-700 hover:bg-white/80'
               }`}
             >
-              <span className="truncate flex-1">{l.native}</span>
-              <span className="text-[10px] text-gray-400">{l.english}</span>
+              <span className="truncate flex-1">{l.english}</span>
+              <span className="text-[10px] text-gray-400">{l.native}</span>
               {l.code === locale && <Check className="w-3.5 h-3.5 text-orange-600 shrink-0" />}
             </button>
           ))}
