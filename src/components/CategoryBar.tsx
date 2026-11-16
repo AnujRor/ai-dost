@@ -12,18 +12,18 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
   onSelectCategory,
 }) => {
   const categories: Array<{ id: DostCategory | 'auto'; label: string; hindi: string; emoji: string }> = [
-    { id: 'auto', label: 'Auto (Khud Samjhega)', hindi: 'ऑटो', emoji: '✨' },
-    { id: 'explain', label: '1. Samjhao', hindi: 'Explain', emoji: '📚' },
-    { id: 'emotional', label: '2. Dil Ki Baat', hindi: 'Motivation', emoji: '❤️' },
-    { id: 'advice', label: '3. Salah & Replies', hindi: 'Advice', emoji: '💡' },
-    { id: 'fun', label: '4. Masti & Fun', hindi: 'Masti', emoji: '😄' },
+    { id: 'auto', label: 'ऑटो (खुद समझेगा)', hindi: 'ऑटो', emoji: '✨' },
+    { id: 'explain', label: '1. समझाओ', hindi: 'समझाओ', emoji: '📚' },
+    { id: 'emotional', label: '2. दिल की बात', hindi: 'हौसला', emoji: '❤️' },
+    { id: 'advice', label: '3. सलाह और जवाब', hindi: 'सलाह', emoji: '💡' },
+    { id: 'fun', label: '4. मस्ती और मज़ा', hindi: 'मस्ती', emoji: '😄' },
   ];
 
   return (
     <div className="w-full py-2 px-3 sm:px-6 border-b border-white/30 bg-white/20 backdrop-blur-md overflow-x-auto no-scrollbar">
       <div className="max-w-6xl mx-auto flex items-center gap-1.5 min-w-max">
         <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider pl-1 pr-1.5 select-none hidden sm:inline">
-          Category:
+          श्रेणी:
         </span>
         {categories.map((cat) => {
           const isActive = selectedCategory === cat.id;

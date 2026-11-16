@@ -18,8 +18,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
   const boosters = [
     {
       id: 'joke',
-      title: 'Desi Joke & Mazaak',
-      desc: 'Fresh, clean aur funny joke sunkar chehre par muskaan layein.',
+      title: 'देसी जोक और मज़ाक',
+      desc: 'ताज़ा, साफ़ और मज़ेदार जोक सुनकर चेहरे पर मुस्कान लाएँ।',
       icon: Laugh,
       emoji: '😂',
       color: 'from-amber-500/15 to-orange-500/15 border-amber-300 text-amber-950',
@@ -28,8 +28,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
     },
     {
       id: 'shayari',
-      title: 'Khoobsurat Shayari',
-      desc: 'Zindagi, dosti ya hosle par dil ko chhu lene wali 2-4 lines.',
+      title: 'खूबसूरत शायरी',
+      desc: 'ज़िंदगी, दोस्ती या हौसले पर दिल को छू लेने वाली 2-4 पंक्तियाँ।',
       icon: Heart,
       emoji: '✍️',
       color: 'from-rose-500/15 to-rose-600/15 border-rose-300 text-rose-950',
@@ -38,8 +38,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
     },
     {
       id: 'thought',
-      title: 'Dost Ka Daily Sandesh',
-      desc: 'Positive vibes aur energy ke saath din shuru karne ke liye.',
+      title: 'दोस्त का रोज़ का संदेश',
+      desc: 'सकारात्मक ऊर्जा के साथ दिन शुरू करने के लिए।',
       icon: Sun,
       emoji: '🌞',
       color: 'from-yellow-500/15 to-amber-500/15 border-yellow-300 text-yellow-950',
@@ -48,8 +48,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
     },
     {
       id: 'paheli',
-      title: 'Dimagi Paheli (Riddle)',
-      desc: 'Ek chatpati paheli jisme dimag ki thodi kasrat ho!',
+      title: 'दिमागी पहेली (Riddle)',
+      desc: 'एक चतुर पहेली जिसमें दिमाग की थोड़ी कसरत हो!',
       icon: Puzzle,
       emoji: '🧩',
       color: 'from-purple-500/15 to-purple-600/15 border-purple-300 text-purple-950',
@@ -80,8 +80,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
               <Sparkles className="w-5 h-5 text-orange-500" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-800">Instant Mood Booster</h3>
-              <p className="text-xs text-gray-500">1-Tap mein apne dost se suniye</p>
+              <h3 className="text-base font-bold text-gray-800">तुरंत मूड बूस्टर</h3>
+              <p className="text-xs text-gray-500">1-टैप में अपने दोस्त से सुनिए</p>
             </div>
           </div>
           <button
@@ -114,7 +114,7 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
         </div>
 
         <div className="pt-2 text-center text-xs text-gray-500">
-          Aapka dost aapka din khushnuma banane ke liye hamesha taiyaar hai!
+          आपका दोस्त आपका दिन खुशनुमा बनाने के लिए हमेशा तैयार है!
         </div>
       </div>
     </div>

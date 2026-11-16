@@ -71,7 +71,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
         <div className="shrink-0 mt-1">
           {isUser ? (
             <div className="w-8 h-8 rounded-full bg-indigo-400 text-white flex items-center justify-center font-bold text-[10px] shadow-sm shadow-indigo-200 border border-white/60">
-              ME
+              मैं
             </div>
           ) : (
             <div className="w-8 h-8 rounded-full bg-orange-400 text-white flex items-center justify-center text-xs shadow-sm shadow-orange-200 border border-white/60">
@@ -106,21 +106,21 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
           >
             {/* Attached Image if any */}
             {message.image && !message.image.data && !message.image.previewUrl && (
-              <p className="text-[11px] opacity-80 mb-1.5 truncate">📎 {message.image.name || 'Photo'} (photo save nahi ho saki)</p>
+              <p className="text-[11px] opacity-80 mb-1.5 truncate">📎 {message.image.name || 'फ़ोटो'} (फ़ोटो सेव नहीं हो सकी)</p>
             )}
             {message.image && (message.image.data || message.image.previewUrl) && (
               <div className="mb-2.5">
                 <div className="relative inline-block overflow-hidden rounded-xl border border-white/60 bg-stone-900/5 group/img">
                   <img
                     src={message.image.previewUrl || `data:${message.image.mimeType};base64,${message.image.data}`}
-                    alt="Uploaded attachment"
+                    alt="अपलोड की गई तस्वीर"
                     className="max-h-60 max-w-full rounded-xl object-contain cursor-pointer hover:opacity-95 transition-opacity"
                     onClick={() => setShowImageZoom(true)}
                   />
                   <button
                     onClick={() => setShowImageZoom(true)}
                     className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-black/80"
-                    title="Zoom Image"
+                    title="तस्वीर बड़ी करें"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                   </button>
@@ -145,7 +145,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                   <span className="w-2 h-2 rounded-full bg-orange-400 animate-bounce [animation-delay:150ms]" />
                   <span className="w-2 h-2 rounded-full bg-orange-400 animate-bounce [animation-delay:300ms]" />
                 </span>
-                <span className="text-xs text-gray-500 font-medium ml-1">Jawab likh raha hoon...</span>
+                <span className="text-xs text-gray-500 font-medium ml-1">जवाब लिख रहा हूँ...</span>
               </div>
             ) : (
               <div className="markdown-content text-base leading-relaxed text-gray-800">
@@ -173,17 +173,17 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                     ? 'bg-orange-500 text-white border-orange-600 animate-pulse shadow-sm'
                     : 'bg-white/50 hover:bg-white/80 text-gray-700 hover:text-gray-900 border-white/60 backdrop-blur-xs'
                 }`}
-                title={isSpeaking ? 'Aawaz Rokein' : 'Dost Ki Aawaz Suno'}
+                title={isSpeaking ? 'आवाज़ रोकें' : 'दोस्त की आवाज़ सुनें'}
               >
                 {isSpeaking ? (
                   <>
                     <Square className="w-3 h-3 fill-current" />
-                    <span>Bol Raha Hai...</span>
+                    <span>बोल रहा है...</span>
                   </>
                 ) : (
                   <>
                     <Volume2 className="w-3.5 h-3.5 text-orange-500" />
-                    <span>Suno</span>
+                    <span>सुनें</span>
                   </>
                 )}
               </button>
@@ -193,17 +193,17 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                 id={`btn-copy-${message.id}`}
                 onClick={handleCopy}
                 className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-gray-700 hover:text-gray-900 border border-white/60 backdrop-blur-xs transition-all"
-                title="Copy text"
+                title="टेक्स्ट कॉपी करें"
               >
                 {copied ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">Copied!</span>
+                    <span className="text-emerald-700 font-semibold">कॉपी हो गया!</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-stone-500" />
-                    <span>Copy</span>
+                    <span>कॉपी</span>
                   </>
                 )}
               </button>
@@ -213,10 +213,10 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                 <button
                   onClick={() => onReExplain(message.text)}
                   className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-blue-900 border border-white/60 backdrop-blur-xs transition-all"
-                  title="Thoda aur aasan bhasha mein samjhao"
+                  title="और आसान भाषा में समझाएँ"
                 >
                   <RefreshCw className="w-3 h-3 text-blue-600" />
-                  <span>Aur Aasan Bhasha</span>
+                  <span>और आसान भाषा</span>
                 </button>
               )}
             </div>
@@ -256,7 +256,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             </button>
             <img
               src={message.image.previewUrl || `data:${message.image.mimeType};base64,${message.image.data}`}
-              alt="Zoomed Attachment"
+              alt="बड़ी की गई तस्वीर"
               className="max-h-[85vh] max-w-full object-contain mx-auto rounded-xl"
             />
           </div>

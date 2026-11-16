@@ -45,8 +45,8 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-toggle-sidebar"
             onClick={onToggleSidebar}
             className="p-2 rounded-full bg-white/40 hover:bg-white/60 text-stone-700 hover:text-stone-900 border border-white/50 shadow-2xs active:scale-95 transition-all focus:outline-hidden"
-            title="Saved Chats & Scenarios"
-            aria-label="Open sidebar"
+            title="सहेजी गई चैट और परिस्थितियाँ"
+            aria-label="साइडबार खोलें"
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -64,11 +64,11 @@ export const Header: React.FC<HeaderProps> = ({
                   AI Dost
                 </h1>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-700 border border-orange-300/50 hidden sm:inline-block">
-                  Hamesha Saath
+                  हमेशा साथ
                 </span>
               </div>
               <p className="text-xs font-semibold text-orange-600 mt-0.5 truncate max-w-[140px] sm:max-w-xs">
-                {currentPersona.name} • 4 Modes
+                {currentPersona.name} • 4 मोड
               </p>
             </div>
           </div>
@@ -81,10 +81,10 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-persona-selector"
             onClick={onOpenPersonaModal}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/40 hover:bg-white/70 text-gray-700 hover:text-gray-900 border border-white/50 backdrop-blur-sm transition-all active:scale-95 shadow-2xs"
-            title="Dost Style / Persona Change Karein"
+            title="दोस्त का अंदाज़ बदलें"
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-orange-500" />
-            <span className="hidden md:inline">Mode:</span>
+            <span className="hidden md:inline">मोड:</span>
             <span className="truncate max-w-[80px] sm:max-w-none font-semibold">{currentPersona.name.split(' ')[0]}</span>
           </button>
 
@@ -93,10 +93,10 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-header-doc-helper"
             onClick={onOpenDocModal}
             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/40 hover:bg-white/70 text-blue-900 border border-white/50 backdrop-blur-sm transition-all active:scale-95 shadow-2xs"
-            title="Bill ya Document Samjhao"
+            title="बिल या डॉक्यूमेंट समझाएँ"
           >
             <FileText className="w-3.5 h-3.5 text-blue-600" />
-            <span className="hidden sm:inline">Bill / Notice</span>
+            <span className="hidden sm:inline">बिल / नोटिस</span>
           </button>
 
           {/* Daily Booster / Mood Refresher */}
@@ -104,10 +104,10 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-header-booster"
             onClick={onOpenBoosterModal}
             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/40 hover:bg-white/70 text-orange-950 border border-white/50 backdrop-blur-sm transition-all active:scale-95 shadow-2xs"
-            title="Joke, Shayari, Daily Inspiration"
+            title="जोक, शायरी, रोज़ का हौसला"
           >
             <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-            <span className="hidden sm:inline">Booster</span>
+            <span className="hidden sm:inline">बूस्टर</span>
           </button>
 
           {/* Audio TTS toggle */}
@@ -119,8 +119,8 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'bg-emerald-500/20 border-emerald-400 text-emerald-800'
                 : 'bg-white/40 hover:bg-white/70 border-white/50 text-gray-600'
             }`}
-            title={isAudioEnabled ? 'Dost Ki Aawaz: On' : 'Dost Ki Aawaz: Off (Mute)'}
-            aria-label="Toggle voice output"
+            title={isAudioEnabled ? 'दोस्त की आवाज़: चालू' : 'दोस्त की आवाज़: बंद (म्यूट)'}
+            aria-label="आवाज़ चालू/बंद करें"
           >
             {isAudioEnabled ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -131,8 +131,8 @@ export const Header: React.FC<HeaderProps> = ({
               id="btn-header-new-chat"
               onClick={onNewChat}
               className="w-9 h-9 rounded-full flex items-center justify-center bg-white/40 hover:bg-white/70 text-gray-700 border border-white/50 backdrop-blur-sm active:scale-95 transition-all shadow-2xs"
-              title="Nayi Baat Shuru Karein (New Chat)"
-              aria-label="New Chat"
+              title="नई बात शुरू करें"
+              aria-label="नई चैट"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -143,8 +143,8 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-header-about"
             onClick={onOpenAboutModal}
             className="w-9 h-9 rounded-full flex items-center justify-center bg-white/40 hover:bg-white/70 text-gray-700 border border-white/50 backdrop-blur-sm active:scale-95 transition-all shadow-2xs"
-            title="Mera AI Dost Ke Baare Mein"
-            aria-label="About App"
+            title="मेरे AI दोस्त के बारे में"
+            aria-label="ऐप के बारे में"
           >
             <Info className="w-4 h-4" />
           </button>

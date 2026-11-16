@@ -87,11 +87,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   const processFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      setSpeechError('Kripya sirf images (JPG, PNG, WebP) upload karein.');
+      setSpeechError('कृपया केवल इमेज (JPG, PNG, WebP) अपलोड करें।');
       return;
     }
     if (file.size > 15 * 1024 * 1024) {
-      setSpeechError('Photo bahut badi hai (15MB se zyada). Chhoti photo bhejein.');
+      setSpeechError('फ़ोटो बहुत बड़ी है (15MB से ज़्यादा)। छोटी फ़ोटो भेजें।');
       return;
     }
 
@@ -133,7 +133,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           setIsListening(false);
         },
         (error) => {
-          setSpeechError('Voice recording error. Kripya dobara try karein.');
+          setSpeechError('वॉइस रिकॉर्डिंग में त्रुटि। कृपया दोबारा कोशिश करें।');
           setIsListening(false);
         },
         () => {
@@ -151,7 +151,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           setIsListening(false);
         }
       } else {
-        setSpeechError('Aapke browser mein speech recognition available nahi hai.');
+        setSpeechError('आपके ब्राउज़र में स्पीच रिकॉग्निशन उपलब्ध नहीं है।');
         setTimeout(() => setSpeechError(null), 3000);
       }
     }
@@ -186,23 +186,23 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             <div className="w-12 h-12 rounded-xl bg-stone-100 overflow-hidden shrink-0 border border-stone-300">
               <img
                 src={attachedImage.previewUrl}
-                alt="Upload preview"
+                alt="अपलोड की गई झलक"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-gray-900 truncate">
-                {attachedImage.name || 'Photo Attached'}
+                {attachedImage.name || 'फ़ोटो जुड़ी है'}
               </p>
               <p className="text-[11px] text-orange-700">
-                Photo/Document padhkar samjhaya jayega
+                फ़ोटो/डॉक्यूमेंट पढ़कर समझाया जाएगा
               </p>
             </div>
             <button
               id="btn-remove-attached-image"
               onClick={() => setAttachedImage(null)}
               className="p-1.5 rounded-full text-stone-600 hover:bg-stone-200/70 transition-all"
-              title="Remove image"
+              title="इमेज हटाएँ"
             >
               <X className="w-4 h-4" />
             </button>
@@ -224,13 +224,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           <div className="flex items-center justify-between px-3.5 py-2 bg-orange-500/15 border border-orange-300 backdrop-blur-md rounded-2xl text-orange-950 text-xs font-semibold animate-pulse">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-              <span>Dost sun raha hai... boliye (Hindi/English)</span>
+              <span>दोस्त सुन रहा है... बोलिए</span>
             </div>
             <button
               onClick={handleToggleListening}
               className="text-xs font-bold text-orange-800 underline hover:text-orange-950"
             >
-              Stop
+              रोकें
             </button>
           </div>
         )}
@@ -253,7 +253,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="p-2.5 rounded-full text-stone-500 hover:text-orange-800 hover:bg-white/80 transition-all active:scale-95 shrink-0"
-            title="Photo / Bill / Notice upload karein"
+            title="फ़ोटो / बिल / नोटिस अपलोड करें"
           >
             <ImageIcon className="w-5 h-5" />
           </button>
@@ -268,16 +268,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             onPaste={handlePaste}
             placeholder={
               attachedImage
-                ? "Is photo ke baare mein kya poochna chahte hain? (Enter to send)"
+                ? "इस फ़ोटो के बारे में क्या जानना चाहते हैं? (भेजने के लिए Enter)"
                 : selectedCategory === 'explain'
-                ? "Kuch samjhna hai? Jaise 'Bijli bill' ya 'SIP kya hota hai'..."
+                ? "कुछ समझना है? जैसे 'बिजली का बिल' या 'SIP क्या होता है'..."
                 : selectedCategory === 'emotional'
-                ? "Dil ki baat share karein, dost sun raha hai..."
+                ? "दिल की बात साझा कीजिए, दोस्त सुन रहा है..."
                 : selectedCategory === 'advice'
-                ? "Kis cheez par salah ya message reply chahiye?..."
+                ? "किस बात पर सलाह या संदेश का जवाब चाहिए?..."
                 : selectedCategory === 'fun'
-                ? "Joke, kahani ya shayari maangein..."
-                : "Apne dost se baat karein ya photo bhejein... (Hinglish/Hindi)"
+                ? "जोक, कहानी या शायरी माँगिए..."
+                : "किसी भी भाषा में लिखिए या फ़ोटो भेजिए..."
             }
             rows={1}
             disabled={isLoading}
@@ -294,7 +294,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 ? 'bg-rose-500 text-white animate-bounce shadow-md'
                 : 'text-stone-500 hover:text-orange-800 hover:bg-white/80'
             }`}
-            title={isListening ? "Listening... Click to stop" : "Bolein (Voice Input)"}
+            title={isListening ? "सुन रहा है... रोकने के लिए क्लिक करें" : "बोलिए (आवाज़ से लिखें)"}
           >
             {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </button>
@@ -310,7 +310,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 ? 'bg-orange-500 text-white shadow-md shadow-orange-300/50 hover:brightness-105 cursor-pointer border border-white/40'
                 : 'bg-white/40 text-stone-400 cursor-not-allowed border border-white/40'
             }`}
-            title="Message bhejein"
+            title="संदेश भेजें"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin text-orange-700" />
@@ -324,10 +324,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         <div className="flex items-center justify-between text-[11px] text-gray-600 px-3 font-medium">
           <span className="flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-orange-500" />
-            <span>Mera AI Dost • Hinglish, Hindi aur English support</span>
+            <span>मेरा AI दोस्त • किसी भी भाषा में सहायता</span>
           </span>
           <span className="hidden sm:inline text-gray-500">
-            Shift + Enter for new line
+            नई लाइन के लिए Shift + Enter
           </span>
         </div>
       </div>

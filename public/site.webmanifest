@@ -1,13 +1,13 @@
 {
-  "name": "AI Dost — Aapka Friendly Hinglish AI Companion",
+  "name": "AI Dost — आपका अपना हिंदी AI साथी",
   "short_name": "AI Dost",
-  "description": "AI Dost by Anuj Ror — bills, notices aur topics ko aasan Hinglish mein samjhao, dil ki baat karo, smart reply options lo aur masti karo.",
+  "description": "AI Dost by Anuj Ror — बिल, नोटिस और मुश्किल विषय आसान हिंदी में समझिए, दिल की बात कीजिए, स्मार्ट जवाब विकल्प लीजिए और मस्ती कीजिए.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#FFE4E1",
   "theme_color": "#F97316",
-  "lang": "en-IN",
+  "lang": "hi-IN",
   "icons": [
     {
       "src": "/favicon.svg",

@@ -78,14 +78,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {currentPersona.avatarEmoji}
             </div>
             <div>
-              <h3 className="text-sm font-bold text-gray-800 leading-none">Mera AI Dost</h3>
-              <p className="text-[11px] text-gray-500 mt-0.5">Chat History & Tools</p>
+              <h3 className="text-sm font-bold text-gray-800 leading-none">मेरा AI दोस्त</h3>
+              <p className="text-[11px] text-gray-500 mt-0.5">चैट इतिहास और टूल्स</p>
             </div>
           </div>
           <button
             onClick={onClose}
             className="p-1.5 rounded-full text-gray-500 hover:text-gray-900 hover:bg-white/60 transition-all"
-            aria-label="Close sidebar"
+            aria-label="साइडबार बंद करें"
           >
             <X className="w-5 h-5" />
           </button>
@@ -101,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="w-full py-2.5 px-3 rounded-full bg-orange-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-orange-300/40 hover:brightness-105 transition-all active:scale-98 border border-white/40"
           >
             <Plus className="w-4 h-4" />
-            <span>Nayi Baat Shuru Karein (New Chat)</span>
+            <span>नई बात शुरू करें</span>
           </button>
         </div>
 
@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Saved Chats ({sessions.length})
+            सहेजी गई चैट ({sessions.length})
           </button>
           <button
             onClick={() => setActiveTab('templates')}
@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Sample Scenarios
+            सैंपल परिस्थितियाँ
           </button>
         </div>
 
@@ -138,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search conversations..."
+                placeholder="बातचीत खोजें..."
                 className="w-full bg-transparent border-none outline-hidden text-xs text-gray-800"
               />
             </div>
@@ -152,7 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {filteredSessions.length === 0 ? (
                 <div className="text-center py-8 text-gray-400 space-y-2">
                   <MessageSquare className="w-8 h-8 mx-auto opacity-40" />
-                  <p className="text-xs font-medium">Koi chat history nahi hai abhi.</p>
+                  <p className="text-xs font-medium">अभी कोई चैट इतिहास नहीं है।</p>
                 </div>
               ) : (
                 <>
@@ -160,7 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {pinnedSessions.length > 0 && (
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-2">
-                        Pinned Chats
+                        पिन की गई चैट
                       </p>
                       {pinnedSessions.map((session) => (
                         <div
@@ -185,14 +185,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             <button
                               onClick={() => onTogglePinSession(session.id)}
                               className="p-1 text-gray-400 hover:text-orange-700 rounded-md"
-                              title="Unpin"
+                              title="पिन हटाएँ"
                             >
                               <Pin className="w-3 h-3" />
                             </button>
                             <button
                               onClick={() => onDeleteSession(session.id)}
                               className="p-1 text-gray-400 hover:text-rose-600 rounded-md"
-                              title="Delete"
+                              title="मिटाएँ"
                             >
                               <Trash2 className="w-3 h-3" />
                             </button>
@@ -206,7 +206,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <div className="space-y-1">
                     {pinnedSessions.length > 0 && otherSessions.length > 0 && (
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider px-2 pt-2">
-                        Recent Chats
+                        हाल की चैट
                       </p>
                     )}
                     {otherSessions.map((session) => (
@@ -232,14 +232,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           <button
                             onClick={() => onTogglePinSession(session.id)}
                             className="p-1 text-gray-400 hover:text-orange-700 rounded-md"
-                            title="Pin to top"
+                            title="ऊपर पिन करें"
                           >
                             <Pin className="w-3 h-3" />
                           </button>
                           <button
                             onClick={() => onDeleteSession(session.id)}
                             className="p-1 text-gray-400 hover:text-rose-600 rounded-md"
-                            title="Delete"
+                            title="मिटाएँ"
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
@@ -253,7 +253,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ) : (
             <div className="space-y-3">
               <p className="text-xs text-gray-600">
-                In sample scenarios ko 1-tap mein test karein:
+                इन सैंपल परिस्थितियों को 1-टैप में आज़माएँ:
               </p>
               {SAMPLE_DOCUMENTS.map((doc) => (
                 <div
@@ -282,22 +282,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={handleExport}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/60 border border-white/60 text-gray-700 hover:text-gray-900 font-semibold hover:bg-white/90 transition-all active:scale-95 shadow-2xs"
-            title="Download conversation backup"
+            title="बातचीत की बैकअप फ़ाइल डाउनलोड करें"
           >
             {exported ? (
               <>
                 <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700">Saved TXT</span>
+                <span className="text-emerald-700">TXT सेव हो गया</span>
               </>
             ) : (
               <>
                 <Download className="w-3.5 h-3.5 text-gray-500" />
-                <span>Export Chat</span>
+                <span>चैट एक्सपोर्ट करें</span>
               </>
             )}
           </button>
           <span className="text-[11px] text-gray-500 font-medium">
-            AI Dost v1.0
+            AI दोस्त v1.0
           </span>
         </div>
       </div>

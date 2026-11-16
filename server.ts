@@ -28,37 +28,49 @@ function getGeminiClient(): GoogleGenAI {
   return aiClient;
 }
 
-const BASE_SYSTEM_INSTRUCTION = `Aap "AI Dost" ho — ek bahut friendly, warm, samajhdar aur all-in-one AI companion.
-Aapka style simple, warm aur apnepan wala hai, jaise koi saccha aur samajhdar dost baat kar raha ho.
-Aap Hindi-English mix (Hinglish) mein baat karte ho jaisa user karta hai, ya jis bhasha (Hindi, English, Hinglish) mein user baat kare usi mein reply karte ho.
+const LANGUAGE_RULE = `भाषा नियम (सबसे पहले और सबसे ज़रूरी — हर जवाब पर लागू):
+- आप दुनिया की किसी भी भाषा में जवाब दे सकते हैं। जिस भाषा और लिपि (script) में यूज़र लिखे या बोले, आपको ठीक उसी भाषा और उसी लिपि में जवाब देना है — जैसे देवनागरी हिंदी, रोमन हिंदी, English, বাংলা, தமிழ், తెలుగు, मराठी, ગુજરાતી, ਪੰਜਾਬੀ, മലയാളം, ಕನ್ನಡ, اردو, العربية, Español, Français, Deutsch, Português, Русский, 中文, 日本語, 한국어, Türkçe, Bahasa Indonesia — या कोई भी।
+- लिपि भी मेल खाए: यूज़र रोमन हिंदी में लिखे तो रोमन में लिखें, देवनागरी में लिखे तो देवनागरी में। अपने आप हिंदी या English में अनुवाद या बदलाव मत करें, जब तक यूज़र खुद न कहे (जैसे "English mein batao")।
+- यूज़र दो भाषाएँ मिलाए (जैसे Hinglish), तो आप भी ऐसे ही स्वाभाविक मिश्रण में जवाब दें।
+- अगर नया मैसेज सिर्फ़ छोटा फ़ॉलो-अप है (जैसे "और आसान करो", "उदाहरण दो", या ऐप का शॉर्टकट बटन), तो बातचीत की पिछली भाषा ही जारी रखें।
+- अगर यूज़र सिर्फ़ फ़ोटो/डॉक्यूमेंट भेजे बिना किसी टेक्स्ट के, तो बातचीत की पिछली भाषा में समझाएँ; पिछली बात न हो तो आसान हिंदी में।
+- टेक्निकल शब्द, नाम, नंबर और रोज़मर्रा के English शब्द ज़बरदस्ती अनुवाद मत करें — बस जवाब की भाषा यूज़र वाली रखें।
+- जवाब की भाषा हमेशा यूज़र की भाषा होगी, चाहे वो कोई भी हो।`;
+
+const BASE_SYSTEM_INSTRUCTION = `आप "AI दोस्त" हैं — एक बहुत प्यारा, गर्मजोशी भरा, समझदार और सब कुछ एक जैसा AI साथी।
+आपका तौर-तरीका सरल, गर्म और अपनेपन वाला है, जैसे कोई सच्चा और समझदार दोस्त बात कर रहा हो।
+
+${LANGUAGE_RULE}
 
 Aapke 4 MAIN KAAM hain, aur user ke message ko dekh kar aapko khud samajhna hai ki abhi kya chahiye:
 
-1. EXPLAIN KARNA (Educational / Samjhana):
-- Agar user koi topic, word, concept, bill (bijli, paani, credit card), notice (bank, court, government), doctor ki prescription, contract ya document (text ya photo) samajhna chahta hai, to use bilkul simple, roz-marra ki aasan bhasha mein samjhao.
-- Mushkil technical/official jargon ko aasan examples ke saath clear karo.
-- Agar photo/image aayi ho, to usme likhe important points padhkar point-by-point seedhi bhasha mein samjhao.
+1. समझाना (Educational / सीखना):
+- अगर यूज़र कोई topic, शब्द, concept, बिल (बिजली, पानी, क्रेडिट कार्ड), नोटिस (बैंक, कोर्ट, सरकार), डॉक्टर की प्रिस्क्रिप्शन, contract या डॉक्यूमेंट (टेक्स्ट या फ़ोटो) समझना हो, तो उसे बिल्कुल आसान, रोज़मर्रा की सरल भाषा में समझाएँ।
+- मुश्किल technical/official jargon को आसान उदाहरणों के साथ साफ़ करें।
+- अगर फ़ोटो/इमेज आई हो, तो उसमें लिखे मुख्य बिंदु पढ़कर एक-एक करके सीधी भाषा में समझाएँ।
 
-2. MOTIVATION / EMOTIONAL SUPPORT (Dil Ki Baat):
-- Agar user apna mood, problem, loneliness, stress ya feelings share kare, to ek sachche dost ki tarah suno.
-- Kabhi judge mat karo. Unhe empathy, apnapan aur positive support do.
-- Zaroorat ho to halka hosla aur pyara encouragement do.
+2. हौसला / भावनात्मक सहारा (दिल की बात):
+- अगर यूज़र अपना मूड, परेशानी, तन्हाई, तनाव या भावनाएँ बाँटे, तो एक सच्चे दोस्त की तरह सुनें।
+- कभी जज मत करें। उन्हें समझ, अपनेपन और सकारात्मक सहारा दें।
+- ज़रूरत हो तो हल्का हौसला और प्यारी तस्वीरी दें।
 
-3. ADVICE / REPLY SUGGESTIONS (Salah aur Messages):
-- Agar user koi confusion, decision, ya awkward situation bataye (jaise kisi ko kya reply karein, WhatsApp/Email message kya bhejein, kya karna chahiye):
-- Unhe hamesha 2-3 clear aur practical options do (jaise: Option 1: Polite & Sweet, Option 2: Direct & Clear, Option 3: Chill/Fun).
-- Format clean rakho taaki wo seedha copy-paste kar sakein ya khud decide kar sakein.
+3. सलाह / जवाब के सुझाव (Salah aur Messages):
+- अगर यूज़र को कोई confusion, decision या awkward situation बताए (जैसे किसी को क्या जवाब दें, WhatsApp/Email क्या भेजें, क्या करना है):
+- हमेशा 2-3 साफ़ और व्यावहारिक विकल्प दें (जैसे: विकल्प 1: नरम और प्यारा, विकल्प 2: सीधा और साफ़, विकल्प 3: हल्का-फुल्का/मज़ेदार)।
+- फ़ॉर्मेट साफ़ रखें ताकि वो सीधे copy-paste कर सके या खुद फ़ैसला कर सके।
 
-4. FUN / ENTERTAINMENT (Masti aur Mazaak):
-- Agar user sirf time-pass, mazaak, shayari, paheli (riddle), ya chhoti chatpati kahani chahta hai, to creative aur mazedaar tarike se unka mann behlao.
+4. मस्ती और मज़ाक (Fun aur Entertainment):
+- अगर यूज़र सिर्फ़ टाइम-पैस, मज़ाक, शायरी, पहेली या छोटी चटपटी कहानी चाहता हो, तो रोचक और मज़ेदार तरीके से उनका मन भटकाएँ।
 
-IMPORTANT RULES:
-- Hamesha friendly aur respectful tone rakho, kabhi bhi rude, robotic ya boring mat lagna.
-- Jawab zyada lamba mat karo — seedha, saaf, formatted aur kaam ka jawab do bina kisi faltu intzaar ke.
-- Agar user ki baat mein koi ambiguity ho ya details missing hon, to ek chhota sa pyara sawaal pooch lo.
-- Kabhi bhi fake ya galat jaankari mat do — agar confirm na ho to seedha aur vinamrata se bata do.
-- Har user ko treat karo jaise wo aapka koi khaas dost ho — chahe wo student ho, housewife ho, working professional ho, ya bujurg ho.
-- End mein 2-3 helpful follow-up options ya agla step naturally suggest karo jab relevant ho.`;
+ज़रूरी नियम:
+- हमेशा मित्रवत और सम्मानजनक tone रखें, कभी rude, robotic या boring न लगें।
+- जवाब ज़्यादा लंबा मत करो — सीधा, साफ़, तयशीदा और काम का जवाब दो बिना किसी फालतू देर के।
+- अगर यूज़र की बात में कोई ambiguity हो या जानकारी कम हो, तो एक छोटा सा प्यारा सवाल पूछ लो।
+- कभी भी नकली या ग़लत जानकारी मत दो — पक्का न हो तो सीधा और विनम्रता से बता दो।
+- हर यूज़र को ऐसे ट्रीट करें जैसे वो आपका कोई ख़ास दोस्त हो — चाहे छात्र हो, गृहिणी हो, कामकाजी हो या बुज़ुर्ग हो।
+- जवाब का अंत स्वाभाविक रखें; अलग से "follow-up options" की लिस्ट खुद मत लिखो — ऐप वह अलग दिखाता है।
+
+आख़िरी याद दिलाना: जवाब हमेशा यूज़र की उसी भाषा और उसी लिपि में दो जिसमें उसने लिखा हो — चाहे वो कोई भी भाषा हो। अपने आप से हिंदी, English या Hinglish में स्विच मत करो।`;
 
 function detectCategory(message?: string, image?: any): 'explain' | 'emotional' | 'advice' | 'fun' | 'general' {
   const lowerMessage = (message || '').toLowerCase();
@@ -70,7 +82,15 @@ function detectCategory(message?: string, image?: any): 'explain' | 'emotional' 
     lowerMessage.includes('bill') ||
     lowerMessage.includes('notice') ||
     lowerMessage.includes('meaning') ||
-    lowerMessage.includes('matlab')
+    lowerMessage.includes('matlab') ||
+    lowerMessage.includes('समझाओ') ||
+    lowerMessage.includes('समझाना') ||
+    lowerMessage.includes('समझाएँ') ||
+    lowerMessage.includes('क्या होता है') ||
+    lowerMessage.includes('मतलब') ||
+    lowerMessage.includes('बिल') ||
+    lowerMessage.includes('नोटिस') ||
+    lowerMessage.includes('परिभाषा')
   ) {
     return 'explain';
   } else if (
@@ -83,7 +103,17 @@ function detectCategory(message?: string, image?: any): 'explain' | 'emotional' 
     lowerMessage.includes('feel') ||
     lowerMessage.includes('rona') ||
     lowerMessage.includes('dil') ||
-    lowerMessage.includes('pareshan')
+    lowerMessage.includes('pareshan') ||
+    lowerMessage.includes('दुखी') ||
+    lowerMessage.includes('उदास') ||
+    lowerMessage.includes('तनाव') ||
+    lowerMessage.includes('थका') ||
+    lowerMessage.includes('थकान') ||
+    lowerMessage.includes('मन खराब') ||
+    lowerMessage.includes('परेशान') ||
+    lowerMessage.includes('रोना') ||
+    lowerMessage.includes('दिल') ||
+    lowerMessage.includes('अकेला')
   ) {
     return 'emotional';
   } else if (
@@ -94,7 +124,15 @@ function detectCategory(message?: string, image?: any): 'explain' | 'emotional' 
     lowerMessage.includes('advice') ||
     lowerMessage.includes('salah') ||
     lowerMessage.includes('message') ||
-    lowerMessage.includes('decision')
+    lowerMessage.includes('decision') ||
+    lowerMessage.includes('जवाब') ||
+    lowerMessage.includes('क्या बोलूं') ||
+    lowerMessage.includes('क्या करूं') ||
+    lowerMessage.includes('विकल्प') ||
+    lowerMessage.includes('सलाह') ||
+    lowerMessage.includes('संदेश') ||
+    lowerMessage.includes('फ़ैसला') ||
+    lowerMessage.includes('सुझाव')
   ) {
     return 'advice';
   } else if (
@@ -104,7 +142,13 @@ function detectCategory(message?: string, image?: any): 'explain' | 'emotional' 
     lowerMessage.includes('mazaak') ||
     lowerMessage.includes('paheli') ||
     lowerMessage.includes('kahani') ||
-    lowerMessage.includes('boring')
+    lowerMessage.includes('boring') ||
+    lowerMessage.includes('जोक') ||
+    lowerMessage.includes('मस्ती') ||
+    lowerMessage.includes('शायरी') ||
+    lowerMessage.includes('मज़ाक') ||
+    lowerMessage.includes('पहेली') ||
+    lowerMessage.includes('कहानी')
   ) {
     return 'fun';
   }
@@ -113,52 +157,65 @@ function detectCategory(message?: string, image?: any): 'explain' | 'emotional' 
 
 function getFollowUps(category: 'explain' | 'emotional' | 'advice' | 'fun' | 'general'): string[] {
   if (category === 'explain') {
-    return ['Thoda aur aasan bhasha mein samjhao', 'Iska ek real-life example do', 'Ab agla step kya hona chahiye?'];
+    return ['और आसान भाषा में समझाओ', 'इसका एक असली उदाहरण दो', 'अगला कदम क्या होना चाहिए?'];
   } else if (category === 'emotional') {
-    return ['Ek pyari si positive baat sunao', 'Man ko shaant karne ka koi quick tip?', 'Shukriya dost, thoda better lag raha hai ❤️'];
+    return ['एक प्यारी सी सकारात्मक बात सुनाओ', 'मन शांत करने का कोई तेज़ उपाय?', 'शुक्रिया दोस्त, थोड़ा बेहतर लग रहा है ❤️'];
   } else if (category === 'advice') {
-    return ['Option 1 ko thoda aur casual banao', 'Agar samne wale ka reply negative aaye to?', 'Ek short WhatsApp version de do'];
+    return ['विकल्प 1 को और सहज बनाओ', 'अगर सामने वाले का जवाब नकारात्मक आए तो?', 'एक छोटा WhatsApp वर्शन दे दो'];
   } else if (category === 'fun') {
-    return ['Ek aur mazedaar joke sunao 😂', 'Ek nayi paheli poochho', 'Koi dosti wali shayari sunao'];
+    return ['एक और मज़ेदार जोक सुनाओ 😂', 'एक नई पहेली पूछो', 'कोई दोस्ती वाली शायरी सुनाओ'];
   }
-  return ['Kuch mazedaar batao', 'Mera ek topic explain karoge?', 'Aaj ka ek positive thought do'];
+  return ['कुछ मज़ेदार बताओ', 'मेरा कोई topic समझाओगे?', 'आज का एक सकारात्मक विचार दो'];
 }
+
+const FOLLOWUP_MARKER = '<<<FOLLOWUPS>>>';
+// Tolerant match so `<<< followups >>>` or a different case still gets stripped
+const FOLLOWUP_MARKER_RE = /<<<\s*followups\s*>>>/i;
+// Anything longer than this after the marker means the marker was not the last line
+const MAX_CHIP_TAIL_LENGTH = 300;
+
+const FOLLOW_UP_CHIP_INSTRUCTION = `
+फ़ॉलो-अप चिप्स (ऐप के टैप-योग्य सुझाव):
+- जवाब के बिल्कुल अंत में, एक नई लाइन पर ठीक यह फ़ॉर्मेट लिखें (और उस लाइन के बाद कुछ नहीं):
+${FOLLOWUP_MARKER} सुझाव 1 || सुझाव 2 || सुझाव 3
+- ठीक 3 सुझाव, हर एक 3-8 शब्दों का, यूज़र की ही भाषा और लिपि में, और ऐसा हो कि यूज़र टैप करके अगला सवाल बना सके।
+- यह मार्कर लाइन सिर्फ़ तब लिखें जब सुझाव सार्थक हों; वरना छोड़ दें। मार्कर के अलावा कोई अतिरिक्त नोट/लेबल मत लिखें।`;
 
 function buildSystemInstruction(personaTone?: string, mode?: string): string {
   let personaAddition = '';
   if (personaTone === 'desi_yaar') {
-    personaAddition = `\nPersona Flavor: Desi Yaar / Jigri Dost. Tone should be high-energy, cheerful, colloquial, full of warmth, masti, and brotherly camaraderie.`;
+    personaAddition = `\nPersona Flavor: देसी यार / ज़िगरी दोस्त। Tone high-energy, cheerful, भाषा रोज़मर्रा की, भरपूर मस्ती और भाई-भाई वाली दोस्ती वाला हो।`;
   } else if (personaTone === 'bada_bhai_didi') {
-    personaAddition = `\nPersona Flavor: Bada Bhai / Didi. Tone should be gentle, protective, wise, mature, and deeply encouraging.`;
+    personaAddition = `\nPersona Flavor: बड़ा भाई / दीदी। Tone gentle, protective, wise, mature और गहरा हौसला देने वाला हो।`;
   } else if (personaTone === 'career_pro') {
-    personaAddition = `\nPersona Flavor: Smart Advisor / Career Coach. Tone should be structured, crisp, solution-oriented, yet warm and accessible.`;
+    personaAddition = `\nPersona Flavor: स्मार्ट सलाहकार / कोच। Tone structured, crisp, solution-oriented, पर गर्मजोशी भरा भी।`;
   }
 
   let modeInstruction = '';
   if (mode === 'explain') {
-    modeInstruction = `\nFocus Mode: EXPLAIN. Focus on breaking down the concept/document/bill into simple bullet points, everyday analogies, and actionable takeaways.`;
+    modeInstruction = `\nFocus Mode: समझाना। Concept/document/bill को simple bullet points, रोज़मर्रा के उदाहरणों और काम के निष्कर्षों में तोड़कर समझाओ।`;
   } else if (mode === 'emotional') {
-    modeInstruction = `\nFocus Mode: MOTIVATION & EMOTIONAL SUPPORT. Focus on deep listening, genuine empathy, validating their feelings, and giving comforting, uplifting words.`;
+    modeInstruction = `\nFocus Mode: हौसला और भावनात्मक सहारा। गहराई से सुनें, सच्ची समझ दें, भावनाओं को वैध मानें और ऊपर उठाने वाले शब्द दें।`;
   } else if (mode === 'advice') {
-    modeInstruction = `\nFocus Mode: ADVICE & REPLY OPTIONS. Provide 2-3 structured ready-to-use message options or step-by-step practical choices.`;
+    modeInstruction = `\nFocus Mode: सलाह और जवाब के विकल्प। 2-3 तयशीदा, इस्तेमाल-के-लिए-तैयार संदेश विकल्प या कदम-दर-कदम व्यावहारिक चुनाव दें।`;
   } else if (mode === 'fun') {
-    modeInstruction = `\nFocus Mode: FUN & ENTERTAINMENT. Make the user smile with humor, desi wit, shayari, riddles, or entertaining banter.`;
+    modeInstruction = `\nFocus Mode: मस्ती और मज़ाक। हास्य, देसी वज़, शायरी, पहेली या मनोरंजक बातचीत से मन खुश करें।`;
   }
 
-  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}`;
+  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}${FOLLOW_UP_CHIP_INSTRUCTION}`;
 }
 
-const MISSING_KEY_MESSAGE = `⚠️ **AI ki API Key set nahi hai**
+const MISSING_KEY_MESSAGE = `⚠️ **AI की API Key सेट नहीं है**
 
-AI Dost ko jawab dene ke liye ek **free** API key chahiye.
+AI Dost को जवाब देने के लिए एक **मुफ़्त** API key चाहिए।
 
-**Free OpenRouter key lene ke aasan steps:**
-1. [openrouter.ai/keys](https://openrouter.ai/keys) kholein aur login karein (Google account se bhi ho jata hai).
-2. **Create Key** par click karke key copy karein.
-3. Project folder mein \`.env\` file kholein aur likhein: \`OPENROUTER_API_KEY=aapki_key\`
-4. Server ko band karke dobara \`npm run dev\` chalayein.
+**मुफ़्त Groq key लेने के आसान तरीके:**
+1. [console.groq.com/keys](https://console.groq.com/keys) खोलिए और लॉगिन कीजिए।
+2. **Create API Key** पर क्लिक करके key कॉपी कीजिए।
+3. Project folder में \`.env\` file खोलिए और लिखिए: \`GROQ_API_KEY=aapki_key\`
+4. Server को बंद करके दोबारा \`npm run dev\` चलाइए।
 
-_(Gemini key bhi chalegi: \`GEMINI_API_KEY=...\` — [aistudio.google.com/apikey](https://aistudio.google.com/apikey))_`;
+_(OpenRouter key भी चलेगी: \`OPENROUTER_API_KEY=...\` — [openrouter.ai/keys](https://openrouter.ai/keys) | Gemini key: [aistudio.google.com/apikey](https://aistudio.google.com/apikey))_`;
 
 // Vercel/env values sometimes arrive with stray whitespace or newlines (e.g. the same
 // key pasted more than once). HTTP headers reject newlines, so keep only the first token.
@@ -194,33 +251,33 @@ function formatErrorMessage(error: any): string {
   }
   if (error?.provider === 'groq') {
     if (error.status === 401) {
-      return `⚠️ **Groq API Key galat hai**\n\n\`.env\` file mein jo \`GROQ_API_KEY\` hai wo valid nahi hai. [console.groq.com/keys](https://console.groq.com/keys) se nayi free key banakar \`.env\` mein daalein aur server restart karein.`;
+      return `⚠️ **Groq API Key ग़लत है**\n\n\`.env\` file में जो \`GROQ_API_KEY\` लिखा है वो सही नहीं है। [console.groq.com/keys](https://console.groq.com/keys) से नई मुफ़्त key बनाकर \`.env\` में डालिए और server restart कीजिए।`;
     }
     if (error.status === 429) {
-      return `⚠️ **Free Limit Reach**\n\nGroq ki free limit abhi poori ho gayi hai. Kripya thodi der baad dobara try karein.`;
+      return `⚠️ **फ़्री लिमिट ख़तम**\n\nGroq की मुफ़्त लिमिट अभी पूरी हो गई है। कृपया थोड़ी देर बाद दोबारा कोशिश कीजिए।`;
     }
   }
   if (error?.provider === 'openrouter') {
     if (error.status === 401) {
-      return `⚠️ **OpenRouter API Key galat hai**\n\n\`.env\` file mein jo \`OPENROUTER_API_KEY\` hai wo valid nahi hai. [openrouter.ai/keys](https://openrouter.ai/keys) se nayi free key banakar \`.env\` mein daalein aur server restart karein.`;
+      return `⚠️ **OpenRouter API Key ग़लत है**\n\n\`.env\` file में जो \`OPENROUTER_API_KEY\` लिखा है वो सही नहीं है। [openrouter.ai/keys](https://openrouter.ai/keys) से नई मुफ़्त key बनाकर \`.env\` में डालिए और server restart कीजिए।`;
     }
     if (errMsg.includes('data policy') || errMsg.includes('privacy')) {
-      return `⚠️ **OpenRouter setting badalni hogi**\n\nFree models use karne ke liye [openrouter.ai/settings/privacy](https://openrouter.ai/settings/privacy) par jaakar free model wali setting **ON** karein, phir dobara try karein.`;
+      return `⚠️ **OpenRouter सेटिंग बदलनी होगी**\n\nमुफ़्त models के लिए [openrouter.ai/settings/privacy](https://openrouter.ai/settings/privacy) पर जाकर free model वाली सेटिंग **ON** कीजिए, फिर दोबारा कोशिश कीजिए।`;
     }
     if (error.status === 429) {
-      return `⚠️ **Free Limit Reach**\n\nOpenRouter ki free limit (har minute/din ki) abhi poori ho gayi hai. Kripya thodi der baad dobara try karein.`;
+      return `⚠️ **फ़्री लिमिट ख़तम**\n\nOpenRouter की मुफ़्त लिमिट (हर मिनट/दिन की) अभी पूरी हो गई है। कृपया थोड़ी देर बाद दोबारा कोशिश कीजिए।`;
     }
   }
   if (errMsg.includes('API key not valid') || errMsg.includes('API_KEY_INVALID') || errMsg.includes('UNAUTHENTICATED')) {
-    return `⚠️ **Gemini API Key galat hai**\n\n\`.env\` file mein jo \`GEMINI_API_KEY\` hai wo valid nahi hai. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) se nayi free key banakar \`.env\` mein daalein aur server restart karein.`;
+    return `⚠️ **Gemini API Key ग़लत है**\n\n\`.env\` file में जो \`GEMINI_API_KEY\` लिखा है वो सही नहीं है। [aistudio.google.com/apikey](https://aistudio.google.com/apikey) से नई मुफ़्त key बनाकर \`.env\` में डालिए और server restart कीजिए।`;
   }
   if (errMsg.includes('denied access') || errMsg.includes('PERMISSION_DENIED') || error?.status === 403 || error?.code === 403) {
-    return `⚠️ **Gemini API Key Update Required**\n\nGoogle ne aapke Gemini project ko access deny kar diya hai (\`PERMISSION_DENIED\`).\n\n**Isse theek karne ke aasan steps:**\n1. [openrouter.ai/keys](https://openrouter.ai/keys) se free key banakar \`.env\` mein \`OPENROUTER_API_KEY=...\` likhein, **ya**\n2. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) par **naye project** mein Gemini key banayein.\n3. Server restart karte hi aapka **AI Dost** normal reply dena shuru kar dega!`;
+    return `⚠️ **Gemini API Key अपडेट करना ज़रूरी है**\n\nGoogle ने आपके Gemini project को access देने से मना कर दिया है (\`PERMISSION_DENIED\`).\n\n**इसे ठीक करने के आसान तरीके:**\n1. [openrouter.ai/keys](https://openrouter.ai/keys) से मुफ़्त key बनाकर \`.env\` में \`OPENROUTER_API_KEY=...\` लिखिए, **या**\n2. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) पर **नया project** बनाकर Gemini key लीजिए।\n3. Server restart करते ही आपका **AI दोस्त** फिर से जवाब देने लगेगा!`;
   }
   if (errMsg.includes('quota') || errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED')) {
-    return `⚠️ **API Quota Limit Reach**\n\nFree quota abhi khatam ho gaya hai. Kripya 1-2 minute baad dobara try karein.`;
+    return `⚠️ **API कोटा लिमिट ख़तम**\n\nमुफ़्त कोटा अभी ख़तम हो गया है। कृपया 1-2 मिनट बाद दोबारा कोशिश कीजिए।`;
   }
-  return `Dost, server se connect karne mein thodi takneeki dikkat aayi hai: ${errMsg || 'Connection issue'}. Kripya ek baar dobara koshish karein.`;
+  return `दोस्त, server से जुड़ने में थोड़ी तकलीफ़ हुई: ${errMsg || 'कनेक्शन समस्या'}। कृपया एक बार दोबारा कोशिश कीजिए।`;
 }
 
 function withPreferred(preferred: string | undefined, defaults: string[]): string[] {
@@ -453,16 +510,114 @@ async function runWithFallback(
   return { isError: true, errorText: formatErrorMessage(firstFatalError ?? lastError) };
 }
 
-async function streamWithFallback(ai: GoogleGenAI, contents: any[], systemInstruction: string, res: Response): Promise<{ isError: boolean }> {
+// Turns the raw `<<<FOLLOWUPS>>> a || b || c` tail into clean chip labels
+export function parseFollowUps(raw: string): string[] {
+  const chips = raw
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/[*_`#>~]/g, '')
+    .split(/\|\||\n|•|·/)
+    .map((s) => s.replace(/^\s*(?:[-–—]|\d+[.)])\s*/, '').replace(/["'“”‘’]/g, '').trim())
+    .filter((s) => s.length > 1 && s.length <= 90);
+  return Array.from(new Set(chips)).slice(0, 3);
+}
+
+// Streams answer text live while holding back the trailing marker + chip line,
+// so the user never sees raw `<<<FOLLOWUPS>>>` in the chat bubble.
+export class FollowUpStreamFilter {
+  private pending = '';
+  private chips = '';
+  private markerFound = false;
+
+  feed(text: string): string {
+    if (this.markerFound) {
+      this.chips += text;
+      return '';
+    }
+    this.pending += text;
+    const markerMatch = FOLLOWUP_MARKER_RE.exec(this.pending);
+    if (markerMatch) {
+      this.markerFound = true;
+      this.chips = this.pending.slice(markerMatch.index + markerMatch[0].length);
+      const visible = this.pending.slice(0, markerMatch.index);
+      this.pending = '';
+      return visible;
+    }
+    // Only hold back a tail that could still grow into the marker
+    const hold = this.holdBackLength();
+    if (!hold) {
+      const visible = this.pending;
+      this.pending = '';
+      return visible;
+    }
+    const visible = this.pending.slice(0, -hold);
+    this.pending = this.pending.slice(-hold);
+    return visible;
+  }
+
+  finish(): string {
+    if (this.markerFound) return '';
+    const rest = this.pending;
+    this.pending = '';
+    return rest;
+  }
+
+  followUps(): string[] {
+    return this.markerFound ? parseFollowUps(this.chips) : [];
+  }
+
+  // Everything that came after the marker (used to recover content if the model
+  // put the marker in the middle of its answer instead of at the end)
+  rawTail(): string {
+    return this.chips;
+  }
+
+  private holdBackLength(): number {
+    // Keep a possible marker start (e.g. "<<<FOLLOWUPS ") in the buffer until we know it
+    // is not one, so a spaced/lowercase variant is still recognised.
+    const p = this.pending;
+    let runStart = p.length;
+    while (runStart > 0 && p[runStart - 1] === '<') runStart--;
+    const trailing = p.slice(runStart);
+    // A marker can be split across chunks ("<<", "<", "<<<FOLL")
+    if (trailing === '<' || trailing === '<<') return trailing.length;
+    const partial = /<<<[\sA-Za-z0-9_>]*$/.exec(p);
+    if (partial && partial[0].length <= 32) return partial[0].length;
+    return 0;
+  }
+}
+
+// Non-streaming equivalent of FollowUpStreamFilter
+export function splitFollowUps(raw: string): { text: string; followUps: string[] } {
+  const markerMatch = FOLLOWUP_MARKER_RE.exec(raw);
+  if (!markerMatch) return { text: raw.trim(), followUps: [] };
+  const tail = raw.slice(markerMatch.index + markerMatch[0].length);
+  // A very long tail means the marker was not at the end — keep the full text
+  if (tail.length > MAX_CHIP_TAIL_LENGTH) return { text: raw.trim(), followUps: [] };
+  return {
+    text: raw.slice(0, markerMatch.index).trim(),
+    followUps: parseFollowUps(tail),
+  };
+}
+
+async function streamWithFallback(
+  ai: GoogleGenAI,
+  contents: any[],
+  systemInstruction: string,
+  res: Response,
+  transform: (text: string) => string = (text) => text
+): Promise<{ isError: boolean }> {
   const result = await runWithFallback(
     ai,
     contents,
     systemInstruction,
-    (text) => res.write(`data: ${JSON.stringify({ chunk: text })}\n\n`),
+    (text) => {
+      const visible = transform(text);
+      if (visible) res.write(`data: ${JSON.stringify({ chunk: visible })}\n\n`);
+    },
     () => res.destroyed
   );
   if (result.interrupted) {
-    res.write(`data: ${JSON.stringify({ chunk: '\n\n_(Jawab beech mein ruk gaya, kripya dobara poochhein.)_' })}\n\n`);
+    res.write(`data: ${JSON.stringify({ chunk: '\n\n_(जवाब बीच में रुक गया, कृपया दोबारा पूछिए।)_' })}\n\n`);
   }
   if (result.errorText) {
     res.write(`data: ${JSON.stringify({ chunk: result.errorText })}\n\n`);
@@ -481,7 +636,7 @@ async function generateWithFallback(ai: GoogleGenAI, contents: any[] | string, s
 
 
 const IMAGE_ONLY_PROMPT =
-  'Kripya is photo/document ko dhyan se dekho aur aasan Hinglish bhasha mein samjhao ki isme kya likha hai aur mere liye kya important hai.';
+  'इस फ़ोटो/डॉक्यूमेंट को ध्यान से देखिए और आसान भाषा में समझाइए कि इसमें क्या लिखा है और मेरे लिए क्या ज़रूरी है।';
 
 // Turn the client's previous messages + the new message into Gemini `contents`
 function buildContents(history: any, message?: string, image?: any): any[] {
@@ -531,7 +686,7 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
   const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
 
   if (!message && !image) {
-    return res.status(400).json({ error: 'Message ya image provide karein.' });
+    return res.status(400).json({ error: 'संदेश या फ़ोटो दीजिए।' });
   }
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -544,18 +699,33 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
     const ai = getGeminiClient();
     const systemInstruction = buildSystemInstruction(personaTone, mode);
     const contents = buildContents(history, message, image);
+    const followUpFilter = new FollowUpStreamFilter();
 
-    const streamResult = await streamWithFallback(ai, contents, systemInstruction, res);
+    const streamResult = await streamWithFallback(ai, contents, systemInstruction, res, (text) => followUpFilter.feed(text));
+    const leftover = followUpFilter.finish();
+    if (leftover) {
+      res.write(`data: ${JSON.stringify({ chunk: leftover })}\n\n`);
+    }
 
     const detectedCategory = resolveCategory(mode, message, image);
-    const followUps = streamResult.isError ? ['Dobara try karein'] : getFollowUps(detectedCategory);
+    const rawTail = followUpFilter.rawTail();
+    const markerWasMidAnswer = rawTail.length > MAX_CHIP_TAIL_LENGTH;
+    if (markerWasMidAnswer && rawTail.trim()) {
+      res.write(`data: ${JSON.stringify({ chunk: '\n\n' + rawTail.trim() })}\n\n`);
+    }
+    const modelFollowUps = markerWasMidAnswer ? [] : followUpFilter.followUps();
+    const followUps = streamResult.isError
+      ? ['दोबारा कोशिश करें']
+      : modelFollowUps.length
+        ? modelFollowUps
+        : getFollowUps(detectedCategory);
 
     res.write(`data: ${JSON.stringify({ done: true, isError: streamResult.isError, category: detectedCategory, suggestedFollowUps: followUps })}\n\n`);
     res.end();
   } catch (error: any) {
     console.error('Streaming Chat API Error:', error);
     res.write(`data: ${JSON.stringify({ chunk: formatErrorMessage(error) })}\n\n`);
-    res.write(`data: ${JSON.stringify({ done: true, isError: true, category: 'general', suggestedFollowUps: ['Dobara try karein'] })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, isError: true, category: 'general', suggestedFollowUps: ['दोबारा कोशिश करें'] })}\n\n`);
     res.end();
   }
 });
@@ -566,20 +736,25 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
 
     if (!message && !image) {
-      return res.status(400).json({ error: 'Message ya image provide karein.' });
+      return res.status(400).json({ error: 'संदेश या फ़ोटो दीजिए।' });
     }
 
     const ai = getGeminiClient();
     const systemInstruction = buildSystemInstruction(personaTone, mode);
     const contents = buildContents(history, message, image);
 
-    const { text, isError } = await generateWithFallback(ai, contents, systemInstruction);
+    const { text: rawText, isError } = await generateWithFallback(ai, contents, systemInstruction);
+    const { text, followUps: modelFollowUps } = splitFollowUps(rawText);
     const detectedCategory = resolveCategory(mode, message, image);
 
     res.json({
-      text: text || 'Dost, jawab taiyaar ho gaya!',
+      text: text || 'दोस्त, जवाब तैयार है!',
       category: detectedCategory,
-      suggestedFollowUps: isError ? ['Dobara try karein'] : getFollowUps(detectedCategory),
+      suggestedFollowUps: isError
+        ? ['दोबारा कोशिश करें']
+        : modelFollowUps.length
+          ? modelFollowUps
+          : getFollowUps(detectedCategory),
       isError,
     });
   } catch (error: any) {
@@ -596,15 +771,15 @@ app.post('/api/quick-action', async (req: Request, res: Response) => {
 
     let prompt = '';
     if (actionType === 'joke') {
-      prompt = 'Mujhe ek ekdum fresh, family-friendly, relatable aur mazedaar desi joke sunao Hinglish mein jo sunkar dil khush ho jaye!';
+      prompt = 'दोस्त, मुझे एक बिल्कुल ताज़ा, परिवार-फ्रेंडली, दिल को छूने वाला और मज़ेदार देसी जोक सुनाइए जो सुनकर दिल खुश हो जाए!';
     } else if (actionType === 'shayari') {
-      prompt = 'Dosti, hosla ya zindagi par 2-4 lines ki khoobsurat, deep aur positive shayari sunao Hinglish mein.';
+      prompt = 'दोस्त, ज़िंदगी, दोस्ती या हौसले पर 2-4 पंक्तियों की खूबसूरत, गहरी और सकारात्मक शायरी सुनाइए।';
     } else if (actionType === 'daily_thought') {
-      prompt = 'Aaj ke din ke liye ek pyara, energetic aur inspiring "Dost Ka Sandesh / Daily Motivation" do (2-3 lines) with warm vibes.';
+      prompt = 'आज के दिन के लिए एक प्यारा, ऊर्जावान और प्रेरणादायक "दोस्त का संदेश / रोज़ का हौसला" दीजिए (2-3 पंक्तियाँ) गर्मजोशी के साथ।';
     } else if (actionType === 'paheli') {
-      prompt = 'Ek mazedaar desi paheli (riddle) poochho. Paheli aur uska hint do, aur answer sabse neeche "Jawab:" ke saath do.';
+      prompt = 'एक मज़ेदार देसी पहेली (riddle) पूछिए। पहेली और उसका संकेत दीजिए, और जवाब सबसे नीचे "जवाब:" के साथ दीजिए।';
     } else {
-      prompt = 'Ek friendly dost ki tarah 2 lines mein poochho ki aaj main kis cheez mein madad karoon.';
+      prompt = 'एक मित्रवत दोस्त की तरह 2 पंक्तियों में पूछिए कि आज मैं किस चीज़ में मदद कर सकता हूँ।';
     }
 
     const { text, isError } = await generateWithFallback(ai, prompt, BASE_SYSTEM_INSTRUCTION);
@@ -617,7 +792,7 @@ app.post('/api/quick-action', async (req: Request, res: Response) => {
 
 // Unknown API routes return JSON instead of the SPA page
 app.use('/api', (req: Request, res: Response) => {
-  res.status(404).json({ error: 'API route nahi mila.' });
+  res.status(404).json({ error: 'यह API route नहीं मिला।' });
 });
 
 async function startServer() {

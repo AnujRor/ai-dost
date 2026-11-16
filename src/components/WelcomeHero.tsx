@@ -27,50 +27,50 @@ export const WelcomeHero: React.FC<WelcomeHeroProps> = ({
     {
       id: 'explain',
       category: 'explain' as DostCategory,
-      title: '1. EXPLAIN KARNA',
-      sub: 'Educational & Documents',
-      desc: 'Bills, complex topics, government notices, prescriptions ya confusing text ko aasan bhasha mein samjho.',
+      title: '1. समझाना',
+      sub: 'सीखना और डॉक्यूमेंट',
+      desc: 'बिल, मुश्किल विषय, सरकारी नोटिस, प्रिस्क्रिप्शन या उलझा टेक्स्ट — सब कुछ आसान भाषा में समझाएँ।',
       icon: BookOpen,
       emoji: '📚',
       color: 'from-blue-500/10 to-blue-600/10 border-blue-200/80 hover:border-blue-400 text-blue-900',
       badgeColor: 'bg-blue-100 text-blue-800',
-      sample: 'Bijli ka bill aur subsidy explain karo',
+      sample: 'बिजली का बिल और सब्सिडी समझाओ',
     },
     {
       id: 'emotional',
       category: 'emotional' as DostCategory,
-      title: '2. DIL KI BAAT',
-      sub: 'Motivation & Support',
-      desc: 'Mood low ho, stress ho ya baat karni ho — bina judge kiye ek sachche dost ki tarah sunega aur hosla dega.',
+      title: '2. दिल की बात',
+      sub: 'हौसला और सहारा',
+      desc: 'मन खराब हो, तनाव हो या बस बात करनी हो — बिना जजमेंट किए एक सच्चे दोस्त की तरह सुनेगा और हौसला देगा।',
       icon: Heart,
       emoji: '❤️',
       color: 'from-rose-500/10 to-rose-600/10 border-rose-200/80 hover:border-rose-400 text-rose-900',
       badgeColor: 'bg-rose-100 text-rose-800',
-      sample: 'Aaj thoda tired aur stressed hoon, baat karo',
+      sample: 'आज थोड़ा थका हुआ और तनाव में हूँ, बात करो',
     },
     {
       id: 'advice',
       category: 'advice' as DostCategory,
-      title: '3. SALAH & REPLIES',
-      sub: 'Decisions & Messages',
-      desc: 'WhatsApp pe kya reply karein, boss se leave kaise maangein ya kya faisla lein — 2-3 ready options payein.',
+      title: '3. सलाह और जवाब',
+      sub: 'फ़ैसले और संदेश',
+      desc: 'WhatsApp पर क्या जवाब दें, बॉस से छुट्टी कैसे माँगें या क्या फ़ैसला लें — 2-3 तैयार विकल्प मिलेंगे।',
       icon: Lightbulb,
       emoji: '💡',
       color: 'from-amber-500/10 to-amber-600/10 border-amber-200/80 hover:border-amber-400 text-amber-950',
       badgeColor: 'bg-amber-100 text-amber-800',
-      sample: 'Boss ko leave mangne ke 3 ready messages do',
+      sample: 'बॉस को छुट्टी माँगने के 3 तैयार संदेश दो',
     },
     {
       id: 'fun',
       category: 'fun' as DostCategory,
-      title: '4. MASTI & FUN',
-      sub: 'Jokes, Shayari & Stories',
-      desc: 'Mazedaar desi jokes, relatable shayaris, paheliyan ya chatpati kahaniyon se din ka mood banayein.',
+      title: '4. मस्ती और मज़ा',
+      sub: 'जोक, शायरी और कहानियाँ',
+      desc: 'मज़ेदार देसी जोक, दिल को छूने वाली शायरियाँ, पहेलियाँ या मज़ेदार कहानियों से दिन का मन हल्का करें।',
       icon: Laugh,
       emoji: '😄',
       color: 'from-purple-500/10 to-purple-600/10 border-purple-200/80 hover:border-purple-400 text-purple-950',
       badgeColor: 'bg-purple-100 text-purple-800',
-      sample: 'Ek mast fresh desi joke sunao',
+      sample: 'एक मस्त ताज़ा देसी जोक सुनाओ',
     },
   ];
 
@@ -80,7 +80,7 @@ export const WelcomeHero: React.FC<WelcomeHeroProps> = ({
       <div className="relative overflow-hidden rounded-[32px] bg-white/40 backdrop-blur-xl border border-white/60 p-6 sm:p-8 text-center shadow-xl">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-white/60 text-orange-950 text-xs font-bold mb-4 shadow-2xs">
           <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-          <span>Aapka Har Mod Par Saath Nibhane Wala Dost</span>
+          <span>हर मोड में साथ निभाने वाला आपका दोस्त</span>
         </div>
 
         <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-orange-400 flex items-center justify-center text-3xl sm:text-4xl shadow-xl shadow-orange-300/50 border-2 border-white mb-3.5">
@@ -88,22 +88,22 @@ export const WelcomeHero: React.FC<WelcomeHeroProps> = ({
         </div>
 
         <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">
-          Namaste! Main hoon <span className="text-orange-600">Mera AI Dost</span>
+          नमस्ते! मैं हूँ <span className="text-orange-600">मेरा AI दोस्त</span>
         </h2>
 
         <p className="text-sm sm:text-base text-gray-700 font-medium max-w-xl mx-auto mt-2 leading-relaxed">
-          Chahe koi topic samajhna ho, dil halka karna ho, WhatsApp reply ki salah chahiye ho, ya bas thodi masti karni ho — main hamesha aapke saath hoon.
+          चाहे कोई विषय समझना हो, दिल हल्का करना हो, WhatsApp जवाब की सलाह चाहिए हो, या बस थोड़ी मस्ती करनी हो — मैं हमेशा आपके साथ हूँ।
         </p>
 
         {/* Mini Trust Tags */}
         <div className="flex flex-wrap items-center justify-center gap-3 mt-4 text-xs font-semibold text-gray-700">
           <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/50 backdrop-blur-xs border border-white/60 shadow-2xs">
             <Languages className="w-3.5 h-3.5 text-orange-500" />
-            <span>Hinglish, Hindi aur English</span>
+            <span>किसी भी भाषा में बात करें</span>
           </span>
           <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/50 backdrop-blur-xs border border-white/60 shadow-2xs">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Zero Judgement & Full Privacy</span>
+            <span>बिना जजमेंट के और पूरी गोपनीयता</span>
           </span>
         </div>
       </div>
@@ -112,9 +112,9 @@ export const WelcomeHero: React.FC<WelcomeHeroProps> = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
-            <span>Mere 4 Main Kaam</span>
+            <span>मेरे 4 मुख्य काम</span>
           </h3>
-          <span className="text-xs text-gray-600 font-medium">Kisi par bhi tap karein</span>
+          <span className="text-xs text-gray-600 font-medium">किसी पर भी टैप करें</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -147,7 +147,7 @@ export const WelcomeHero: React.FC<WelcomeHeroProps> = ({
                     "{p.sample}"
                   </span>
                   <span className="flex items-center gap-1 text-xs shrink-0 ml-1 font-bold text-orange-600">
-                    Try <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                    आज़माएँ <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                   </span>
                 </div>
               </div>
@@ -159,7 +159,7 @@ export const WelcomeHero: React.FC<WelcomeHeroProps> = ({
       {/* Suggested Starter Prompts Grid */}
       <div className="space-y-2.5">
         <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider px-1">
-          Popular Questions & Topics
+          लोकप्रिय सवाल और विषय
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {QUICK_PROMPTS.map((item) => (

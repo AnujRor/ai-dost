@@ -14,7 +14,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
   const actions = [
     {
       id: 'joke',
-      label: 'Desi Joke',
+      label: 'देसी जोक',
       icon: Laugh,
       emoji: '😂',
       color: 'bg-white/40 hover:bg-white/70 text-amber-950 border-white/50 backdrop-blur-xs',
@@ -23,7 +23,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     },
     {
       id: 'shayari',
-      label: 'Khoobsurat Shayari',
+      label: 'खूबसूरत शायरी',
       icon: HeartHandshake,
       emoji: '✍️',
       color: 'bg-white/40 hover:bg-white/70 text-rose-950 border-white/50 backdrop-blur-xs',
@@ -32,7 +32,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     },
     {
       id: 'thought',
-      label: 'Daily Motivation',
+      label: 'रोज़ का हौसला',
       icon: Sun,
       emoji: '🌞',
       color: 'bg-white/40 hover:bg-white/70 text-orange-950 border-white/50 backdrop-blur-xs',
@@ -41,7 +41,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     },
     {
       id: 'paheli',
-      label: 'Ek Paheli Poochho',
+      label: 'एक पहेली पूछो',
       icon: Puzzle,
       emoji: '🧩',
       color: 'bg-white/40 hover:bg-white/70 text-purple-950 border-white/50 backdrop-blur-xs',
@@ -66,7 +66,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     <div className="w-full max-w-4xl mx-auto px-3 py-1.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
       <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider pl-1 shrink-0 flex items-center gap-1">
         <Sparkles className="w-3 h-3 text-orange-500" />
-        <span>Boosters:</span>
+        <span>बूस्टर:</span>
       </span>
       {actions.map((act) => {
         return (

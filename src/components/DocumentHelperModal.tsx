@@ -29,8 +29,8 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
               <FileText className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-800">Bill ya Notice Samjhao</h3>
-              <p className="text-xs text-gray-500">Photo bhejein ya sample template se samjhein</p>
+              <h3 className="text-base font-bold text-gray-800">बिल या नोटिस समझाएँ</h3>
+              <p className="text-xs text-gray-500">फ़ोटो भेजिए या सैंपल टेम्पलेट से समझिए</p>
             </div>
           </div>
           <button
@@ -53,10 +53,10 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
             <Upload className="w-5 h-5 text-orange-600" />
           </div>
           <p className="text-xs font-bold text-gray-900">
-            Apne Bill ya Document Ki Photo Upload Karein
+            अपने बिल या डॉक्यूमेंट की फ़ोटो अपलोड करें
           </p>
           <p className="text-[11px] text-gray-500">
-            Bijli ka bill, Bank notice, Prescription, ya confusing contract photo
+            बिजली का बिल, बैंक नोटिस, प्रिस्क्रिप्शन या उलझा हुआ कॉन्ट्रैक्ट की फ़ोटो
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
         <div className="space-y-2">
           <p className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-            <span>Ya In Sample Scenarios Ko Test Karein:</span>
+            <span>या इन सैंपल परिस्थितियों को आज़माएँ:</span>
           </p>
 
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
@@ -92,7 +92,7 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
         </div>
 
         <div className="pt-2 text-center text-xs text-gray-500">
-          Mera AI Dost bina kisi jargon ke seedhi aur aasan bhasha mein samjhayega.
+          मेरा AI दोस्त बिना किसी jargon के सीधी और आसान भाषा में समझाएगा।
         </div>
       </div>
     </div>

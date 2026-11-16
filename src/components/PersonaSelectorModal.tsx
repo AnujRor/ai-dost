@@ -28,8 +28,8 @@ export const PersonaSelectorModal: React.FC<PersonaSelectorModalProps> = ({
               <Sparkles className="w-5 h-5 text-orange-500" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-800">Dost Ka Andaaz (Persona Style)</h3>
-              <p className="text-xs text-gray-500">Chuniye ki aapka dost aapse kis style mein baat kare</p>
+              <h3 className="text-base font-bold text-gray-800">दोस्त का अंदाज़ (पर्सोना स्टाइल)</h3>
+              <p className="text-xs text-gray-500">चुनिए कि आपका दोस्त आपसे किस अंदाज़ में बात करे</p>
             </div>
           </div>
           <button
@@ -88,7 +88,7 @@ export const PersonaSelectorModal: React.FC<PersonaSelectorModalProps> = ({
         </div>
 
         <div className="pt-2 text-center text-xs text-gray-500">
-          Aap kabhi bhi apna pasandida andaaz badal sakte hain.
+          आप कभी भी अपना पसंदीदा अंदाज़ बदल सकते हैं।
         </div>
       </div>
     </div>

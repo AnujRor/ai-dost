@@ -21,7 +21,7 @@ class SpeechManager {
     onError?: (err: any) => void
   ) {
     if (!this.synth) {
-      onError?.(new Error('Speech synthesis not supported in this browser.'));
+      onError?.(new Error('इस ब्राउज़र में स्पीच सिंथेसिस उपलब्ध नहीं है।'));
       return;
     }
 

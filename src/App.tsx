@@ -60,7 +60,7 @@ export default function App() {
     return [
       {
         id: initialId,
-        title: 'Nayi Baatcheet',
+        title: 'नई बातचीत',
         messages: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -149,7 +149,7 @@ export default function App() {
     // Calculate updated title if first message
     let sessionTitle = currentSession.title;
     if (messages.length === 0) {
-      sessionTitle = text ? (text.length > 32 ? text.substring(0, 32) + '...' : text) : 'Photo Document';
+      sessionTitle = text ? (text.length > 32 ? text.substring(0, 32) + '...' : text) : 'फ़ोटो डॉक्यूमेंट';
     }
 
     // Append user message
@@ -225,7 +225,7 @@ export default function App() {
         if (!fallbackRes.ok) {
           const errorData = await fallbackRes.json().catch(() => ({}));
           if (fallbackRes.status === 413) {
-            throw new Error('Photo ya chat bahut badi hai, chhoti photo bhejein ya naya chat shuru karein');
+            throw new Error('फ़ोटो या चैट बहुत बड़ी है, छोटी फ़ोटो भेजें या नई चैट शुरू करें');
           }
           throw new Error(errorData.error || `Server error (${fallbackRes.status})`);
         }
@@ -241,7 +241,7 @@ export default function App() {
                     m.id === assistantMsgId
                       ? {
                           ...m,
-                          text: data.text || 'Dost, jawab tayyar ho gaya!',
+                          text: data.text || 'दोस्त, जवाब तैयार है!',
                           category: data.category || 'general',
                           suggestedFollowUps: data.suggestedFollowUps || [],
                           isError: isFallbackError,
@@ -315,7 +315,7 @@ export default function App() {
       }
 
       // Final synchronization with metadata
-      const finalText = accumulatedText.trim() || 'Dost, jawab tayyar ho gaya!';
+      const finalText = accumulatedText.trim() || 'दोस्त, जवाब तैयार है!';
       setSessions((prev) =>
         prev.map((s) =>
           s.id === currentSession.id
@@ -350,9 +350,9 @@ export default function App() {
         errorMsgText.includes('PERMISSION_DENIED') ||
         errorMsgText.includes('403')
       ) {
-        errorMsgText = `⚠️ **Google AI Studio API Key Update Required**\n\nAapke current Gemini API Key ke project ko Google dwara access deny kiya gaya hai.\n\n**Isse theek karne ke aasan steps:**\n1. AI Studio ke top-right **Settings > Secrets** par click karein.\n2. Wahan ek naya aur active **GEMINI_API_KEY** update karein.\n3. Save karte hi aapka **AI Dost** dobara instantly normal reply dena shuru kar dega!`;
+        errorMsgText = `⚠️ **Google AI Studio API Key अपडेट करना ज़रूरी है**\n\nआपके मौजूदा Gemini API Key के प्रोजेक्ट को Google ने एक्सेस देने से मना कर दिया है।\n\n**इसे ठीक करने के आसान तरीके:**\n1. AI Studio में ऊपर-दाएँ तरफ **Settings > Secrets** पर क्लिक करें।\n2. वहाँ एक नया और चालू **GEMINI_API_KEY** डालें।\n3. Save करते ही आपका **AI दोस्त** फिर से तुरंत जवाब देने लगेगा!`;
       } else {
-        errorMsgText = `Dost, thoda sa network issue aa gaya: "${errorMsgText}". Ek baar dobara try karein.`;
+        errorMsgText = `दोस्त, थोड़ा नेटवर्क issue आ गया: "${errorMsgText}"। एक बार दोबारा कोशिश करें।`;
       }
 
       setSessions((prev) =>
@@ -381,18 +381,18 @@ export default function App() {
 
   // Quick 1-tap booster handler
   const handleQuickAction = async (actionType: 'joke' | 'shayari' | 'daily_thought' | 'paheli') => {
-    let promptTitle = 'Ek Mazedaar Joke';
-    if (actionType === 'shayari') promptTitle = 'Ek Pyari Shayari';
-    if (actionType === 'daily_thought') promptTitle = 'Daily Motivation';
-    if (actionType === 'paheli') promptTitle = 'Ek Dimagi Paheli';
+    let promptTitle = 'एक मज़ेदार जोक';
+    if (actionType === 'shayari') promptTitle = 'एक प्यारी शायरी';
+    if (actionType === 'daily_thought') promptTitle = 'रोज़ का हौसला';
+    if (actionType === 'paheli') promptTitle = 'एक दिमागी पहेली';
 
-    handleSendMessage(`Dost, mujhe ${promptTitle} sunao!`, undefined, 'fun');
+    handleSendMessage(`दोस्त, मुझे ${promptTitle} सुनाओ!`, undefined, 'fun');
   };
 
   // Re-explain simpler
   const handleReExplain = (contextText: string) => {
     handleSendMessage(
-      'Isko aur aasan bhasha mein ek real-life example ke sath samjhao dost.',
+      'दोस्त, इसे और आसान भाषा में एक असली उदाहरण के साथ समझाओ।',
       undefined,
       'explain'
     );
@@ -404,7 +404,7 @@ export default function App() {
     const newSessionId = 'session_' + Date.now();
     const newSession: ChatSession = {
       id: newSessionId,
-      title: 'Nayi Baatcheet',
+      title: 'नई बातचीत',
       messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -421,7 +421,7 @@ export default function App() {
       const freshId = 'session_' + Date.now();
       const freshSession: ChatSession = {
         id: freshId,
-        title: 'Nayi Baatcheet',
+        title: 'नई बातचीत',
         messages: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -446,7 +446,7 @@ export default function App() {
   // Load sample document from template
   const handleLoadSampleDoc = (text: string, title: string) => {
     handleSendMessage(
-      `Mera yeh document/scenario samjhao aur guidance do:\n\n${text}`,
+      `मेरा यह डॉक्यूमेंट/परिस्थिति समझाओ और मार्गदर्शन दो:\n\n${text}`,
       undefined,
       'explain'
     );
@@ -457,7 +457,7 @@ export default function App() {
     const transcript = messages
       .map((m) => {
         const time = new Date(m.timestamp).toLocaleTimeString();
-        const sender = m.role === 'user' ? 'Aap' : `Mera AI Dost (${currentPersona.name})`;
+        const sender = m.role === 'user' ? 'आप' : `मेरा AI दोस्त (${currentPersona.name})`;
         return `[${time}] ${sender}:\n${m.text}\n`;
       })
       .join('\n----------------------------------------\n\n');
