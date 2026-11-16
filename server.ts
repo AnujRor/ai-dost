@@ -174,6 +174,29 @@ const FOLLOWUP_MARKER_RE = /<<<\s*followups\s*>>>/i;
 // Anything longer than this after the marker means the marker was not the last line
 const MAX_CHIP_TAIL_LENGTH = 300;
 
+// Languages the UI can be switched to (see src/i18n/languages.ts)
+const APP_LANGUAGE_NAMES: Record<string, string> = {
+  hi: 'Hindi (देवनागरी हिंदी)',
+  en: 'English',
+  bn: 'বাংলা (Bengali)',
+  ta: 'தமிழ் (Tamil)',
+  te: 'తెలుగు (Telugu)',
+  mr: 'मराठी (Marathi)',
+  gu: 'ગુજરાતી (Gujarati)',
+  pa: 'ਪੰਜਾਬੀ (Punjabi)',
+  ur: 'اردو (Urdu)',
+  ar: 'العربية (Arabic)',
+  es: 'Español (Spanish)',
+  fr: 'Français (French)',
+  zh: '中文 (Chinese)',
+};
+
+function appLanguageInstruction(locale?: string): string {
+  if (!locale || !APP_LANGUAGE_NAMES[locale]) return '';
+  return `\nऐप की भाषा: ${APP_LANGUAGE_NAMES[locale]} (कोड: ${locale})। यूज़र ने स्क्रीन की भाषा बदलकर यही चुनी है। जब तक यूज़र साफ़ किसी दूसरी भाषा में लिखकर न बदले, जवाब इसी भाषा और इसी लिपि में दें। Follow-up chips भी इसी भाषा में बनाएँ।`;
+}
+
+
 const FOLLOW_UP_CHIP_INSTRUCTION = `
 फ़ॉलो-अप चिप्स (ऐप के टैप-योग्य सुझाव):
 - जवाब के बिल्कुल अंत में, एक नई लाइन पर ठीक यह फ़ॉर्मेट लिखें (और उस लाइन के बाद कुछ नहीं):
@@ -181,7 +204,7 @@ ${FOLLOWUP_MARKER} सुझाव 1 || सुझाव 2 || सुझाव 3
 - ठीक 3 सुझाव, हर एक 3-8 शब्दों का, यूज़र की ही भाषा और लिपि में, और ऐसा हो कि यूज़र टैप करके अगला सवाल बना सके।
 - यह मार्कर लाइन सिर्फ़ तब लिखें जब सुझाव सार्थक हों; वरना छोड़ दें। मार्कर के अलावा कोई अतिरिक्त नोट/लेबल मत लिखें।`;
 
-function buildSystemInstruction(personaTone?: string, mode?: string): string {
+function buildSystemInstruction(personaTone?: string, mode?: string, locale?: string): string {
   let personaAddition = '';
   if (personaTone === 'desi_yaar') {
     personaAddition = `\nPersona Flavor: देसी यार / ज़िगरी दोस्त। Tone high-energy, cheerful, भाषा रोज़मर्रा की, भरपूर मस्ती और भाई-भाई वाली दोस्ती वाला हो।`;
@@ -202,7 +225,7 @@ function buildSystemInstruction(personaTone?: string, mode?: string): string {
     modeInstruction = `\nFocus Mode: मस्ती और मज़ाक। हास्य, देसी वज़, शायरी, पहेली या मनोरंजक बातचीत से मन खुश करें।`;
   }
 
-  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}${FOLLOW_UP_CHIP_INSTRUCTION}`;
+  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}${appLanguageInstruction(locale)}${FOLLOW_UP_CHIP_INSTRUCTION}`;
 }
 
 const MISSING_KEY_MESSAGE = `⚠️ **AI की API Key सेट नहीं है**
@@ -683,7 +706,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 
 // Fast SSE Streaming Chat endpoint (words appear as they are generated)
 app.post('/api/chat/stream', async (req: Request, res: Response) => {
-  const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
+  const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto', locale } = req.body || {};
 
   if (!message && !image) {
     return res.status(400).json({ error: 'संदेश या फ़ोटो दीजिए।' });
@@ -697,7 +720,7 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
 
   try {
     const ai = getGeminiClient();
-    const systemInstruction = buildSystemInstruction(personaTone, mode);
+    const systemInstruction = buildSystemInstruction(personaTone, mode, locale);
     const contents = buildContents(history, message, image);
     const followUpFilter = new FollowUpStreamFilter();
 
@@ -733,14 +756,14 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
 // Standard non-streaming chat endpoint (client falls back to this if streaming fails)
 app.post('/api/chat', async (req: Request, res: Response) => {
   try {
-    const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
+    const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto', locale } = req.body || {};
 
     if (!message && !image) {
       return res.status(400).json({ error: 'संदेश या फ़ोटो दीजिए।' });
     }
 
     const ai = getGeminiClient();
-    const systemInstruction = buildSystemInstruction(personaTone, mode);
+    const systemInstruction = buildSystemInstruction(personaTone, mode, locale);
     const contents = buildContents(history, message, image);
 
     const { text: rawText, isError } = await generateWithFallback(ai, contents, systemInstruction);

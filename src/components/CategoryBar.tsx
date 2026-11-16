@@ -1,6 +1,6 @@
 import React from 'react';
 import { DostCategory } from '../types';
-import { CATEGORY_INFO } from '../data/dostPresets';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface CategoryBarProps {
   selectedCategory: DostCategory | 'auto';
@@ -11,19 +11,21 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
-  const categories: Array<{ id: DostCategory | 'auto'; label: string; hindi: string; emoji: string }> = [
-    { id: 'auto', label: 'ऑटो (खुद समझेगा)', hindi: 'ऑटो', emoji: '✨' },
-    { id: 'explain', label: '1. समझाओ', hindi: 'समझाओ', emoji: '📚' },
-    { id: 'emotional', label: '2. दिल की बात', hindi: 'हौसला', emoji: '❤️' },
-    { id: 'advice', label: '3. सलाह और जवाब', hindi: 'सलाह', emoji: '💡' },
-    { id: 'fun', label: '4. मस्ती और मज़ा', hindi: 'मस्ती', emoji: '😄' },
+  const { t } = useLanguage();
+
+  const categories: Array<{ id: DostCategory | 'auto'; label: string; emoji: string }> = [
+    { id: 'auto', label: t('category.auto'), emoji: '✨' },
+    { id: 'explain', label: t('category.explain'), emoji: '📚' },
+    { id: 'emotional', label: t('category.emotional'), emoji: '❤️' },
+    { id: 'advice', label: t('category.advice'), emoji: '💡' },
+    { id: 'fun', label: t('category.fun'), emoji: '😄' },
   ];
 
   return (
     <div className="w-full py-2 px-3 sm:px-6 border-b border-white/30 bg-white/20 backdrop-blur-md overflow-x-auto no-scrollbar">
       <div className="max-w-6xl mx-auto flex items-center gap-1.5 min-w-max">
         <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider pl-1 pr-1.5 select-none hidden sm:inline">
-          श्रेणी:
+          {t('category.heading')}
         </span>
         {categories.map((cat) => {
           const isActive = selectedCategory === cat.id;

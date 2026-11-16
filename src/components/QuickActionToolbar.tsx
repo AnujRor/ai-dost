@@ -1,6 +1,7 @@
 import React from 'react';
 import { Laugh, HeartHandshake, Sun, Puzzle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface QuickActionToolbarProps {
   onTriggerQuickAction: (actionType: 'joke' | 'shayari' | 'daily_thought' | 'paheli') => void;
@@ -11,10 +12,12 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
   onTriggerQuickAction,
   isLoading,
 }) => {
+  const { t } = useLanguage();
+
   const actions = [
     {
       id: 'joke',
-      label: 'देसी जोक',
+      label: t('qa.joke'),
       icon: Laugh,
       emoji: '😂',
       color: 'bg-white/40 hover:bg-white/70 text-amber-950 border-white/50 backdrop-blur-xs',
@@ -23,7 +26,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     },
     {
       id: 'shayari',
-      label: 'खूबसूरत शायरी',
+      label: t('qa.shayari'),
       icon: HeartHandshake,
       emoji: '✍️',
       color: 'bg-white/40 hover:bg-white/70 text-rose-950 border-white/50 backdrop-blur-xs',
@@ -32,7 +35,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     },
     {
       id: 'thought',
-      label: 'रोज़ का हौसला',
+      label: t('qa.motivation'),
       icon: Sun,
       emoji: '🌞',
       color: 'bg-white/40 hover:bg-white/70 text-orange-950 border-white/50 backdrop-blur-xs',
@@ -41,7 +44,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     },
     {
       id: 'paheli',
-      label: 'एक पहेली पूछो',
+      label: t('qa.paheli'),
       icon: Puzzle,
       emoji: '🧩',
       color: 'bg-white/40 hover:bg-white/70 text-purple-950 border-white/50 backdrop-blur-xs',
@@ -66,7 +69,7 @@ export const QuickActionToolbar: React.FC<QuickActionToolbarProps> = ({
     <div className="w-full max-w-4xl mx-auto px-3 py-1.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
       <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider pl-1 shrink-0 flex items-center gap-1">
         <Sparkles className="w-3 h-3 text-orange-500" />
-        <span>बूस्टर:</span>
+        <span>{t('qa.heading')}</span>
       </span>
       {actions.map((act) => {
         return (

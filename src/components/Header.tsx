@@ -1,15 +1,17 @@
 import React from 'react';
-import { 
-  Sparkles, 
-  FileText, 
-  RotateCcw, 
-  Info, 
-  Menu, 
-  Volume2, 
-  VolumeX, 
-  SlidersHorizontal 
+import {
+  Sparkles,
+  FileText,
+  RotateCcw,
+  Info,
+  Menu,
+  Volume2,
+  VolumeX,
+  SlidersHorizontal
 } from 'lucide-react';
 import { PersonaProfile } from '../types';
+import { useLanguage } from '../i18n/LanguageContext';
+import { LanguagePicker } from './LanguagePicker';
 
 interface HeaderProps {
   currentPersona: PersonaProfile;
@@ -36,6 +38,8 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleAudio,
   hasMessages,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <header className="sticky top-0 z-30 bg-white/20 backdrop-blur-xl border-b border-white/30 shadow-xs px-3 sm:px-6 py-3 transition-all">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
@@ -45,8 +49,8 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-toggle-sidebar"
             onClick={onToggleSidebar}
             className="p-2 rounded-full bg-white/40 hover:bg-white/60 text-stone-700 hover:text-stone-900 border border-white/50 shadow-2xs active:scale-95 transition-all focus:outline-hidden"
-            title="सहेजी गई चैट और परिस्थितियाँ"
-            aria-label="साइडबार खोलें"
+            title={t('header.savedChatsTitle')}
+            aria-label={t('header.openSidebar')}
           >
             <Menu className="w-5 h-5" />
           </button>
@@ -61,14 +65,14 @@ export const Header: React.FC<HeaderProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-base sm:text-xl font-bold text-gray-800 tracking-tight leading-none">
-                  AI Dost
+                  {t('common.appName')}
                 </h1>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-700 border border-orange-300/50 hidden sm:inline-block">
-                  हमेशा साथ
+                  {t('header.alwaysWithYou')}
                 </span>
               </div>
               <p className="text-xs font-semibold text-orange-600 mt-0.5 truncate max-w-[140px] sm:max-w-xs">
-                {currentPersona.name} • 4 मोड
+                {t('header.modesCount', { name: currentPersona.name })}
               </p>
             </div>
           </div>
@@ -76,16 +80,21 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Center / Right: Quick Tool Buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Language switcher */}
+          <LanguagePicker />
+
           {/* Persona flavor switch */}
           <button
             id="btn-persona-selector"
             onClick={onOpenPersonaModal}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/40 hover:bg-white/70 text-gray-700 hover:text-gray-900 border border-white/50 backdrop-blur-sm transition-all active:scale-95 shadow-2xs"
-            title="दोस्त का अंदाज़ बदलें"
+            title={t('header.changePersona')}
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-orange-500" />
-            <span className="hidden md:inline">मोड:</span>
-            <span className="truncate max-w-[80px] sm:max-w-none font-semibold">{currentPersona.name.split(' ')[0]}</span>
+            <span className="hidden md:inline">{t('header.modeLabel')}</span>
+            <span className="truncate max-w-[80px] sm:max-w-none font-semibold">
+              {currentPersona.name.split(' ')[0]}
+            </span>
           </button>
 
           {/* Doc / Bill Scanner Helper */}
@@ -93,10 +102,10 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-header-doc-helper"
             onClick={onOpenDocModal}
             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/40 hover:bg-white/70 text-blue-900 border border-white/50 backdrop-blur-sm transition-all active:scale-95 shadow-2xs"
-            title="बिल या डॉक्यूमेंट समझाएँ"
+            title={t('header.billDocTitle')}
           >
             <FileText className="w-3.5 h-3.5 text-blue-600" />
-            <span className="hidden sm:inline">बिल / नोटिस</span>
+            <span className="hidden sm:inline">{t('header.billNoticeLabel')}</span>
           </button>
 
           {/* Daily Booster / Mood Refresher */}
@@ -104,10 +113,10 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-header-booster"
             onClick={onOpenBoosterModal}
             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/40 hover:bg-white/70 text-orange-950 border border-white/50 backdrop-blur-sm transition-all active:scale-95 shadow-2xs"
-            title="जोक, शायरी, रोज़ का हौसला"
+            title={t('header.boosterTitle')}
           >
             <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-            <span className="hidden sm:inline">बूस्टर</span>
+            <span className="hidden sm:inline">{t('header.boosterLabel')}</span>
           </button>
 
           {/* Audio TTS toggle */}
@@ -119,8 +128,8 @@ export const Header: React.FC<HeaderProps> = ({
                 ? 'bg-emerald-500/20 border-emerald-400 text-emerald-800'
                 : 'bg-white/40 hover:bg-white/70 border-white/50 text-gray-600'
             }`}
-            title={isAudioEnabled ? 'दोस्त की आवाज़: चालू' : 'दोस्त की आवाज़: बंद (म्यूट)'}
-            aria-label="आवाज़ चालू/बंद करें"
+            title={isAudioEnabled ? t('header.voiceOn') : t('header.voiceOff')}
+            aria-label={t('header.toggleVoice')}
           >
             {isAudioEnabled ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -131,8 +140,8 @@ export const Header: React.FC<HeaderProps> = ({
               id="btn-header-new-chat"
               onClick={onNewChat}
               className="w-9 h-9 rounded-full flex items-center justify-center bg-white/40 hover:bg-white/70 text-gray-700 border border-white/50 backdrop-blur-sm active:scale-95 transition-all shadow-2xs"
-              title="नई बात शुरू करें"
-              aria-label="नई चैट"
+              title={t('header.newChatTitle')}
+              aria-label={t('header.newChatAria')}
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -143,8 +152,8 @@ export const Header: React.FC<HeaderProps> = ({
             id="btn-header-about"
             onClick={onOpenAboutModal}
             className="w-9 h-9 rounded-full flex items-center justify-center bg-white/40 hover:bg-white/70 text-gray-700 border border-white/50 backdrop-blur-sm active:scale-95 transition-all shadow-2xs"
-            title="मेरे AI दोस्त के बारे में"
-            aria-label="ऐप के बारे में"
+            title={t('header.aboutTitle')}
+            aria-label={t('header.aboutAria')}
           >
             <Info className="w-4 h-4" />
           </button>

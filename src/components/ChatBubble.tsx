@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
-import { 
-  Copy, 
-  Check, 
-  Volume2, 
-  Square, 
-  Sparkles, 
-  CornerDownRight, 
-  Maximize2, 
+import React, { useMemo, useState } from 'react';
+import {
+  Copy,
+  Check,
+  Volume2,
+  Square,
+  Sparkles,
+  CornerDownRight,
+  Maximize2,
   X,
   RefreshCw
 } from 'lucide-react';
 import { ChatMessage, PersonaProfile } from '../types';
-import { CATEGORY_INFO } from '../data/dostPresets';
+import { getCategoryInfo } from '../data/dostPresets';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { speechManager } from '../utils/speech';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface ChatBubbleProps {
   message: ChatMessage;
@@ -28,12 +29,14 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   onSendFollowUp,
   onReExplain,
 }) => {
+  const { t, htmlLang, locale } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showImageZoom, setShowImageZoom] = useState(false);
 
   const isUser = message.role === 'user';
-  const categoryInfo = message.category ? CATEGORY_INFO[message.category] : null;
+  const categoryInfoMap = useMemo(() => getCategoryInfo(t), [t]);
+  const categoryInfo = message.category ? categoryInfoMap[message.category] : null;
 
   const handleCopy = () => {
     navigator.clipboard
@@ -55,13 +58,14 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
         message.text,
         () => setIsSpeaking(true),
         () => setIsSpeaking(false),
-        () => setIsSpeaking(false)
+        () => setIsSpeaking(false),
+        locale
       );
     }
   };
 
   const formatTime = (ts: number) => {
-    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(ts).toLocaleTimeString(htmlLang, { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -71,7 +75,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
         <div className="shrink-0 mt-1">
           {isUser ? (
             <div className="w-8 h-8 rounded-full bg-indigo-400 text-white flex items-center justify-center font-bold text-[10px] shadow-sm shadow-indigo-200 border border-white/60">
-              मैं
+              {t('bubble.me')}
             </div>
           ) : (
             <div className="w-8 h-8 rounded-full bg-orange-400 text-white flex items-center justify-center text-xs shadow-sm shadow-orange-200 border border-white/60">
@@ -106,21 +110,23 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
           >
             {/* Attached Image if any */}
             {message.image && !message.image.data && !message.image.previewUrl && (
-              <p className="text-[11px] opacity-80 mb-1.5 truncate">📎 {message.image.name || 'फ़ोटो'} (फ़ोटो सेव नहीं हो सकी)</p>
+              <p className="text-[11px] opacity-80 mb-1.5 truncate">
+                📎 {message.image.name || t('bubble.photo')} {t('bubble.photoNotSaved')}
+              </p>
             )}
             {message.image && (message.image.data || message.image.previewUrl) && (
               <div className="mb-2.5">
                 <div className="relative inline-block overflow-hidden rounded-xl border border-white/60 bg-stone-900/5 group/img">
                   <img
                     src={message.image.previewUrl || `data:${message.image.mimeType};base64,${message.image.data}`}
-                    alt="अपलोड की गई तस्वीर"
+                    alt={t('bubble.uploadedAlt')}
                     className="max-h-60 max-w-full rounded-xl object-contain cursor-pointer hover:opacity-95 transition-opacity"
                     onClick={() => setShowImageZoom(true)}
                   />
                   <button
                     onClick={() => setShowImageZoom(true)}
                     className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-black/80"
-                    title="तस्वीर बड़ी करें"
+                    title={t('bubble.zoomTitle')}
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                   </button>
@@ -145,7 +151,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                   <span className="w-2 h-2 rounded-full bg-orange-400 animate-bounce [animation-delay:150ms]" />
                   <span className="w-2 h-2 rounded-full bg-orange-400 animate-bounce [animation-delay:300ms]" />
                 </span>
-                <span className="text-xs text-gray-500 font-medium ml-1">जवाब लिख रहा हूँ...</span>
+                <span className="text-xs text-gray-500 font-medium ml-1">{t('bubble.typing')}</span>
               </div>
             ) : (
               <div className="markdown-content text-base leading-relaxed text-gray-800">
@@ -173,17 +179,17 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                     ? 'bg-orange-500 text-white border-orange-600 animate-pulse shadow-sm'
                     : 'bg-white/50 hover:bg-white/80 text-gray-700 hover:text-gray-900 border-white/60 backdrop-blur-xs'
                 }`}
-                title={isSpeaking ? 'आवाज़ रोकें' : 'दोस्त की आवाज़ सुनें'}
+                title={isSpeaking ? t('bubble.stopVoice') : t('bubble.listenVoice')}
               >
                 {isSpeaking ? (
                   <>
                     <Square className="w-3 h-3 fill-current" />
-                    <span>बोल रहा है...</span>
+                    <span>{t('bubble.speaking')}</span>
                   </>
                 ) : (
                   <>
                     <Volume2 className="w-3.5 h-3.5 text-orange-500" />
-                    <span>सुनें</span>
+                    <span>{t('bubble.listen')}</span>
                   </>
                 )}
               </button>
@@ -192,18 +198,18 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
               <button
                 id={`btn-copy-${message.id}`}
                 onClick={handleCopy}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-gray-700 hover:text-gray-900 border border-white/60 backdrop-blur-xs transition-all"
-                title="टेक्स्ट कॉपी करें"
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-gray-700 hover:text-gray-900 border-white/60 backdrop-blur-xs transition-all"
+                title={t('bubble.copyTitle')}
               >
                 {copied ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-emerald-700 font-semibold">कॉपी हो गया!</span>
+                    <span className="text-emerald-700 font-semibold">{t('bubble.copied')}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-stone-500" />
-                    <span>कॉपी</span>
+                    <span>{t('bubble.copy')}</span>
                   </>
                 )}
               </button>
@@ -212,11 +218,11 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
               {message.category === 'explain' && onReExplain && (
                 <button
                   onClick={() => onReExplain(message.text)}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-blue-900 border border-white/60 backdrop-blur-xs transition-all"
-                  title="और आसान भाषा में समझाएँ"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-blue-900 border-white/60 backdrop-blur-xs transition-all"
+                  title={t('bubble.reexplainTitle')}
                 >
                   <RefreshCw className="w-3 h-3 text-blue-600" />
-                  <span>और आसान भाषा</span>
+                  <span>{t('bubble.reexplain')}</span>
                 </button>
               )}
             </div>
@@ -229,7 +235,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                 <button
                   key={idx}
                   onClick={() => onSendFollowUp(prompt)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-gray-800 border border-white/60 backdrop-blur-sm shadow-2xs hover:shadow-xs transition-all active:scale-95 text-left"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-medium bg-white/50 hover:bg-white/80 text-gray-800 border-white/60 backdrop-blur-sm shadow-2xs hover:shadow-xs transition-all active:scale-95 text-left"
                 >
                   <Sparkles className="w-3 h-3 text-orange-500 shrink-0" />
                   <span>{prompt}</span>
@@ -256,7 +262,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             </button>
             <img
               src={message.image.previewUrl || `data:${message.image.mimeType};base64,${message.image.data}`}
-              alt="बड़ी की गई तस्वीर"
+              alt={t('bubble.zoomedAlt')}
               className="max-h-[85vh] max-w-full object-contain mx-auto rounded-xl"
             />
           </div>

@@ -12,7 +12,8 @@ import { BoosterModal } from './components/BoosterModal';
 import { AboutModal } from './components/AboutModal';
 
 import { ChatMessage, ChatSession, DostCategory, PersonaProfile } from './types';
-import { PERSONA_PROFILES } from './data/dostPresets';
+import { getPersonaProfiles } from './data/dostPresets';
+import { useLanguage } from './i18n/LanguageContext';
 import { speechManager } from './utils/speech';
 import { Loader2 } from 'lucide-react';
 
@@ -21,17 +22,31 @@ const STORAGE_KEY_PERSONA = 'mera_ai_dost_persona';
 const STORAGE_KEY_AUDIO = 'mera_ai_dost_audio';
 
 export default function App() {
+  const { t, locale, htmlLang, dir } = useLanguage();
+
+  // Personas (translated)
+  const personaProfiles = React.useMemo(() => getPersonaProfiles(t), [t]);
+
   // Current persona
   const [currentPersona, setCurrentPersona] = useState<PersonaProfile>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_PERSONA);
       if (saved) {
-        const found = PERSONA_PROFILES.find((p) => p.id === saved);
+        const found = personaProfiles.find((p) => p.id === saved);
         if (found) return found;
       }
     } catch (e) {}
-    return PERSONA_PROFILES[0];
+    return personaProfiles[0];
   });
+
+  // Keep the selected persona valid when the app language changes (names are translated)
+  useEffect(() => {
+    setCurrentPersona((prev) => {
+      const match = personaProfiles.find((p) => p.id === prev.id);
+      return match || personaProfiles[0];
+    });
+  }, [personaProfiles]);
+
 
   // Selected Category / Mode Filter
   const [selectedCategory, setSelectedCategory] = useState<DostCategory | 'auto'>('auto');
@@ -60,7 +75,7 @@ export default function App() {
     return [
       {
         id: initialId,
-        title: 'नई बातचीत',
+        title: t('common.newChat'),
         messages: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -84,6 +99,12 @@ export default function App() {
 
   // Auto-scroll ref
   const chatBottomRef = useRef<HTMLDivElement>(null);
+
+  // Keep <html lang> and direction in sync with the selected language
+  useEffect(() => {
+    document.documentElement.lang = htmlLang;
+    document.documentElement.dir = dir;
+  }, [htmlLang, dir]);
 
   // Save sessions to localStorage
   useEffect(() => {
@@ -149,7 +170,7 @@ export default function App() {
     // Calculate updated title if first message
     let sessionTitle = currentSession.title;
     if (messages.length === 0) {
-      sessionTitle = text ? (text.length > 32 ? text.substring(0, 32) + '...' : text) : 'फ़ोटो डॉक्यूमेंट';
+      sessionTitle = text ? (text.length > 32 ? text.substring(0, 32) + '...' : text) : t('common.photoDocument');
     }
 
     // Append user message
@@ -206,6 +227,7 @@ export default function App() {
         })),
         personaTone: currentPersona.id,
         mode: modeToSend,
+        locale, // app language chosen by the user — the AI replies in it
       });
 
       const response = await fetch('/api/chat/stream', {
@@ -225,7 +247,7 @@ export default function App() {
         if (!fallbackRes.ok) {
           const errorData = await fallbackRes.json().catch(() => ({}));
           if (fallbackRes.status === 413) {
-            throw new Error('फ़ोटो या चैट बहुत बड़ी है, छोटी फ़ोटो भेजें या नई चैट शुरू करें');
+            throw new Error(t('app.tooBig'));
           }
           throw new Error(errorData.error || `Server error (${fallbackRes.status})`);
         }
@@ -241,7 +263,7 @@ export default function App() {
                     m.id === assistantMsgId
                       ? {
                           ...m,
-                          text: data.text || 'दोस्त, जवाब तैयार है!',
+                          text: data.text || t('app.answerReady'),
                           category: data.category || 'general',
                           suggestedFollowUps: data.suggestedFollowUps || [],
                           isError: isFallbackError,
@@ -255,7 +277,7 @@ export default function App() {
         );
 
         if (isAudioEnabled && data.text && !isFallbackError) {
-          speechManager.speak(data.text);
+          speechManager.speak(data.text, undefined, undefined, undefined, locale);
         }
         return;
       }
@@ -315,7 +337,7 @@ export default function App() {
       }
 
       // Final synchronization with metadata
-      const finalText = accumulatedText.trim() || 'दोस्त, जवाब तैयार है!';
+      const finalText = accumulatedText.trim() || t('app.answerReady');
       setSessions((prev) =>
         prev.map((s) =>
           s.id === currentSession.id
@@ -340,7 +362,7 @@ export default function App() {
 
       // Speak aloud if enabled and not an error
       if (isAudioEnabled && finalText && !isErrorOccurred) {
-        speechManager.speak(finalText);
+        speechManager.speak(finalText, undefined, undefined, undefined, locale);
       }
     } catch (err: any) {
       console.error('Send message error:', err);
@@ -350,9 +372,9 @@ export default function App() {
         errorMsgText.includes('PERMISSION_DENIED') ||
         errorMsgText.includes('403')
       ) {
-        errorMsgText = `⚠️ **Google AI Studio API Key अपडेट करना ज़रूरी है**\n\nआपके मौजूदा Gemini API Key के प्रोजेक्ट को Google ने एक्सेस देने से मना कर दिया है।\n\n**इसे ठीक करने के आसान तरीके:**\n1. AI Studio में ऊपर-दाएँ तरफ **Settings > Secrets** पर क्लिक करें।\n2. वहाँ एक नया और चालू **GEMINI_API_KEY** डालें।\n3. Save करते ही आपका **AI दोस्त** फिर से तुरंत जवाब देने लगेगा!`;
+        errorMsgText = t('app.geminiKeyError');
       } else {
-        errorMsgText = `दोस्त, थोड़ा नेटवर्क issue आ गया: "${errorMsgText}"। एक बार दोबारा कोशिश करें।`;
+        errorMsgText = t('app.networkError', { error: errorMsgText });
       }
 
       setSessions((prev) =>
@@ -381,21 +403,17 @@ export default function App() {
 
   // Quick 1-tap booster handler
   const handleQuickAction = async (actionType: 'joke' | 'shayari' | 'daily_thought' | 'paheli') => {
-    let promptTitle = 'एक मज़ेदार जोक';
-    if (actionType === 'shayari') promptTitle = 'एक प्यारी शायरी';
-    if (actionType === 'daily_thought') promptTitle = 'रोज़ का हौसला';
-    if (actionType === 'paheli') promptTitle = 'एक दिमागी पहेली';
+    let promptTitle = t('app.jokeTitle');
+    if (actionType === 'shayari') promptTitle = t('app.shayariTitle');
+    if (actionType === 'daily_thought') promptTitle = t('app.motivationTitle');
+    if (actionType === 'paheli') promptTitle = t('app.paheliTitle');
 
-    handleSendMessage(`दोस्त, मुझे ${promptTitle} सुनाओ!`, undefined, 'fun');
+    handleSendMessage(t('app.playPrompt', { title: promptTitle }), undefined, 'fun');
   };
 
   // Re-explain simpler
   const handleReExplain = (contextText: string) => {
-    handleSendMessage(
-      'दोस्त, इसे और आसान भाषा में एक असली उदाहरण के साथ समझाओ।',
-      undefined,
-      'explain'
-    );
+    handleSendMessage(t('app.reexplainPrompt'), undefined, 'explain');
   };
 
   // New Chat
@@ -404,7 +422,7 @@ export default function App() {
     const newSessionId = 'session_' + Date.now();
     const newSession: ChatSession = {
       id: newSessionId,
-      title: 'नई बातचीत',
+      title: t('common.newChat'),
       messages: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -421,7 +439,7 @@ export default function App() {
       const freshId = 'session_' + Date.now();
       const freshSession: ChatSession = {
         id: freshId,
-        title: 'नई बातचीत',
+        title: t('common.newChat'),
         messages: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -445,11 +463,7 @@ export default function App() {
 
   // Load sample document from template
   const handleLoadSampleDoc = (text: string, title: string) => {
-    handleSendMessage(
-      `मेरा यह डॉक्यूमेंट/परिस्थिति समझाओ और मार्गदर्शन दो:\n\n${text}`,
-      undefined,
-      'explain'
-    );
+    handleSendMessage(t('app.docPrompt', { text }), undefined, 'explain');
   };
 
   // Export Chat
@@ -457,7 +471,7 @@ export default function App() {
     const transcript = messages
       .map((m) => {
         const time = new Date(m.timestamp).toLocaleTimeString();
-        const sender = m.role === 'user' ? 'आप' : `मेरा AI दोस्त (${currentPersona.name})`;
+        const sender = m.role === 'user' ? t('common.you') : t('app.exportAssistant', { name: currentPersona.name });
         return `[${time}] ${sender}:\n${m.text}\n`;
       })
       .join('\n----------------------------------------\n\n');
@@ -481,7 +495,10 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-[#FFD1A4] via-[#FFE4E1] to-[#D8BFD8] text-stone-800 overflow-hidden relative selection:bg-orange-200">
+    <div
+      dir={dir}
+      className="flex flex-col h-screen w-full bg-gradient-to-br from-[#FFD1A4] via-[#FFE4E1] to-[#D8BFD8] text-stone-800 overflow-hidden relative selection:bg-orange-200"
+    >
       {/* Ambient background glowing orbs */}
       <div className="absolute top-12 left-10 w-72 h-72 bg-orange-300/30 rounded-full blur-3xl pointer-events-none -z-0" />
       <div className="absolute bottom-16 right-10 w-80 h-80 bg-purple-300/30 rounded-full blur-3xl pointer-events-none -z-0" />

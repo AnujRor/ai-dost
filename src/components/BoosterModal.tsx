@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Laugh, Sun, Heart, Sparkles, Puzzle } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface BoosterModalProps {
   isOpen: boolean;
@@ -13,13 +14,15 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
   onClose,
   onTriggerAction,
 }) => {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   const boosters = [
     {
       id: 'joke',
-      title: 'देसी जोक और मज़ाक',
-      desc: 'ताज़ा, साफ़ और मज़ेदार जोक सुनकर चेहरे पर मुस्कान लाएँ।',
+      title: t('booster.joke.title'),
+      desc: t('booster.joke.desc'),
       icon: Laugh,
       emoji: '😂',
       color: 'from-amber-500/15 to-orange-500/15 border-amber-300 text-amber-950',
@@ -28,8 +31,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
     },
     {
       id: 'shayari',
-      title: 'खूबसूरत शायरी',
-      desc: 'ज़िंदगी, दोस्ती या हौसले पर दिल को छू लेने वाली 2-4 पंक्तियाँ।',
+      title: t('booster.shayari.title'),
+      desc: t('booster.shayari.desc'),
       icon: Heart,
       emoji: '✍️',
       color: 'from-rose-500/15 to-rose-600/15 border-rose-300 text-rose-950',
@@ -38,8 +41,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
     },
     {
       id: 'thought',
-      title: 'दोस्त का रोज़ का संदेश',
-      desc: 'सकारात्मक ऊर्जा के साथ दिन शुरू करने के लिए।',
+      title: t('booster.thought.title'),
+      desc: t('booster.thought.desc'),
       icon: Sun,
       emoji: '🌞',
       color: 'from-yellow-500/15 to-amber-500/15 border-yellow-300 text-yellow-950',
@@ -48,8 +51,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
     },
     {
       id: 'paheli',
-      title: 'दिमागी पहेली (Riddle)',
-      desc: 'एक चतुर पहेली जिसमें दिमाग की थोड़ी कसरत हो!',
+      title: t('booster.paheli.title'),
+      desc: t('booster.paheli.desc'),
       icon: Puzzle,
       emoji: '🧩',
       color: 'from-purple-500/15 to-purple-600/15 border-purple-300 text-purple-950',
@@ -80,8 +83,8 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
               <Sparkles className="w-5 h-5 text-orange-500" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-800">तुरंत मूड बूस्टर</h3>
-              <p className="text-xs text-gray-500">1-टैप में अपने दोस्त से सुनिए</p>
+              <h3 className="text-base font-bold text-gray-800">{t('booster.title')}</h3>
+              <p className="text-xs text-gray-500">{t('booster.subtitle')}</p>
             </div>
           </div>
           <button
@@ -113,9 +116,7 @@ export const BoosterModal: React.FC<BoosterModalProps> = ({
           })}
         </div>
 
-        <div className="pt-2 text-center text-xs text-gray-500">
-          आपका दोस्त आपका दिन खुशनुमा बनाने के लिए हमेशा तैयार है!
-        </div>
+        <div className="pt-2 text-center text-xs text-gray-500">{t('booster.footer')}</div>
       </div>
     </div>
   );

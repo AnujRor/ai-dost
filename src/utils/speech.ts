@@ -18,7 +18,8 @@ class SpeechManager {
     text: string,
     onStart?: () => void,
     onEnd?: () => void,
-    onError?: (err: any) => void
+    onError?: (err: any) => void,
+    lang?: string
   ) {
     if (!this.synth) {
       onError?.(new Error('इस ब्राउज़र में स्पीच सिंथेसिस उपलब्ध नहीं है।'));
@@ -37,16 +38,21 @@ class SpeechManager {
     const utterance = new SpeechSynthesisUtterance(cleanText);
     this.currentUtterance = utterance;
 
-    // Pick best available Hindi/Indian English voice
+    // Prefer a voice that matches the app language, fall back to Hindi/Indian English
     const voices = this.synth.getVoices();
+    const prefix = (lang || 'hi').split('-')[0].toLowerCase();
+    const matchingVoice = voices.find((v) => v.lang.toLowerCase().startsWith(prefix));
     const hindiVoice =
       voices.find((v) => v.lang.toLowerCase().startsWith('hi')) ||
       voices.find((v) => v.lang.toLowerCase() === 'en-in' || v.lang.toLowerCase() === 'en_in') ||
       voices.find((v) => /india|hindi/i.test(v.name));
 
-    if (hindiVoice) {
+    if (matchingVoice) {
+      utterance.voice = matchingVoice;
+    } else if (hindiVoice) {
       utterance.voice = hindiVoice;
     }
+    utterance.lang = matchingVoice ? matchingVoice.lang : lang || 'hi-IN';
 
     utterance.rate = 1.0;
     utterance.pitch = 1.05;
@@ -90,7 +96,8 @@ export const speechManager = new SpeechManager();
 export function createSpeechRecognizer(
   onResult: (text: string) => void,
   onError?: (err: string) => void,
-  onEnd?: () => void
+  onEnd?: () => void,
+  lang?: string
 ) {
   if (typeof window === 'undefined') return null;
 
@@ -104,7 +111,8 @@ export function createSpeechRecognizer(
   const recognition = new SpeechRecognition();
   recognition.continuous = false;
   recognition.interimResults = false;
-  recognition.lang = 'hi-IN'; // Supports Hindi & Hinglish recognition smoothly
+  // Recognise in the app language (Hindi by default)
+  recognition.lang = lang || 'hi-IN';
 
   recognition.onresult = (event: any) => {
     const transcript = event.results[0][0].transcript;

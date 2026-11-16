@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { X, Check, Sparkles } from 'lucide-react';
 import { PersonaProfile } from '../types';
-import { PERSONA_PROFILES } from '../data/dostPresets';
+import { getPersonaProfiles } from '../data/dostPresets';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface PersonaSelectorModalProps {
   isOpen: boolean;
@@ -16,6 +17,9 @@ export const PersonaSelectorModal: React.FC<PersonaSelectorModalProps> = ({
   currentPersona,
   onSelectPersona,
 }) => {
+  const { t } = useLanguage();
+  const personas = useMemo(() => getPersonaProfiles(t), [t]);
+
   if (!isOpen) return null;
 
   return (
@@ -28,8 +32,8 @@ export const PersonaSelectorModal: React.FC<PersonaSelectorModalProps> = ({
               <Sparkles className="w-5 h-5 text-orange-500" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-800">दोस्त का अंदाज़ (पर्सोना स्टाइल)</h3>
-              <p className="text-xs text-gray-500">चुनिए कि आपका दोस्त आपसे किस अंदाज़ में बात करे</p>
+              <h3 className="text-base font-bold text-gray-800">{t('persona.title')}</h3>
+              <p className="text-xs text-gray-500">{t('persona.subtitle')}</p>
             </div>
           </div>
           <button
@@ -42,7 +46,7 @@ export const PersonaSelectorModal: React.FC<PersonaSelectorModalProps> = ({
 
         {/* Persona list */}
         <div className="grid grid-cols-1 gap-2.5 max-h-[60vh] overflow-y-auto pr-1">
-          {PERSONA_PROFILES.map((p) => {
+          {personas.map((p) => {
             const isSelected = p.id === currentPersona.id;
             return (
               <div
@@ -58,7 +62,9 @@ export const PersonaSelectorModal: React.FC<PersonaSelectorModalProps> = ({
                     : 'bg-white/50 hover:bg-white/80 border-white/50 backdrop-blur-xs'
                 }`}
               >
-                <div className={`w-12 h-12 rounded-full bg-gradient-to-tr ${p.color} text-white flex items-center justify-center text-2xl shrink-0 shadow-md shadow-orange-300/30 border border-white/60`}>
+                <div
+                  className={`w-12 h-12 rounded-full bg-gradient-to-tr ${p.color} text-white flex items-center justify-center text-2xl shrink-0 shadow-md shadow-orange-300/30 border border-white/60`}
+                >
                   {p.avatarEmoji}
                 </div>
 
@@ -87,9 +93,7 @@ export const PersonaSelectorModal: React.FC<PersonaSelectorModalProps> = ({
           })}
         </div>
 
-        <div className="pt-2 text-center text-xs text-gray-500">
-          आप कभी भी अपना पसंदीदा अंदाज़ बदल सकते हैं।
-        </div>
+        <div className="pt-2 text-center text-xs text-gray-500">{t('persona.footer')}</div>
       </div>
     </div>
   );

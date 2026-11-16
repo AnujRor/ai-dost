@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { X, FileText, Upload, ArrowRight, Sparkles } from 'lucide-react';
-import { SAMPLE_DOCUMENTS } from '../data/dostPresets';
+import { getSampleDocuments } from '../data/dostPresets';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface DocumentHelperModalProps {
   isOpen: boolean;
@@ -15,7 +16,8 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
   onSelectSample,
   onUploadImageFromModal,
 }) => {
-  const [selectedSample, setSelectedSample] = useState<string | null>(null);
+  const { t } = useLanguage();
+  const sampleDocuments = useMemo(() => getSampleDocuments(t), [t]);
 
   if (!isOpen) return null;
 
@@ -29,8 +31,8 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
               <FileText className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-800">बिल या नोटिस समझाएँ</h3>
-              <p className="text-xs text-gray-500">फ़ोटो भेजिए या सैंपल टेम्पलेट से समझिए</p>
+              <h3 className="text-base font-bold text-gray-800">{t('doc.title')}</h3>
+              <p className="text-xs text-gray-500">{t('doc.subtitle')}</p>
             </div>
           </div>
           <button
@@ -52,23 +54,19 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
           <div className="w-10 h-10 mx-auto rounded-full bg-orange-400/20 text-orange-900 flex items-center justify-center group-hover:scale-110 transition-transform">
             <Upload className="w-5 h-5 text-orange-600" />
           </div>
-          <p className="text-xs font-bold text-gray-900">
-            अपने बिल या डॉक्यूमेंट की फ़ोटो अपलोड करें
-          </p>
-          <p className="text-[11px] text-gray-500">
-            बिजली का बिल, बैंक नोटिस, प्रिस्क्रिप्शन या उलझा हुआ कॉन्ट्रैक्ट की फ़ोटो
-          </p>
+          <p className="text-xs font-bold text-gray-900">{t('doc.upload')}</p>
+          <p className="text-[11px] text-gray-500">{t('doc.uploadHint')}</p>
         </div>
 
         {/* Pre-built Sample Cases */}
         <div className="space-y-2">
           <p className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-            <span>या इन सैंपल परिस्थितियों को आज़माएँ:</span>
+            <span>{t('doc.samples')}</span>
           </p>
 
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-            {SAMPLE_DOCUMENTS.map((doc) => (
+            {sampleDocuments.map((doc) => (
               <div
                 key={doc.id}
                 onClick={() => {
@@ -81,9 +79,7 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
                   <h4 className="text-xs font-bold text-gray-900 group-hover:text-blue-900">
                     {doc.name}
                   </h4>
-                  <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">
-                    {doc.description}
-                  </p>
+                  <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{doc.description}</p>
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
               </div>
@@ -91,9 +87,7 @@ export const DocumentHelperModal: React.FC<DocumentHelperModalProps> = ({
           </div>
         </div>
 
-        <div className="pt-2 text-center text-xs text-gray-500">
-          मेरा AI दोस्त बिना किसी jargon के सीधी और आसान भाषा में समझाएगा।
-        </div>
+        <div className="pt-2 text-center text-xs text-gray-500">{t('doc.footer')}</div>
       </div>
     </div>
   );
