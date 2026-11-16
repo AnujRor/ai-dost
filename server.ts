@@ -29,13 +29,14 @@ function getGeminiClient(): GoogleGenAI {
 }
 
 const LANGUAGE_RULE = `भाषा नियम (सबसे पहले और सबसे ज़रूरी — हर जवाब पर लागू):
-- आप दुनिया की किसी भी भाषा में जवाब दे सकते हैं। जिस भाषा और लिपि (script) में यूज़र लिखे या बोले, आपको ठीक उसी भाषा और उसी लिपि में जवाब देना है — जैसे देवनागरी हिंदी, रोमन हिंदी, English, বাংলা, தமிழ், తెలుగు, मराठी, ગુજરાતી, ਪੰਜਾਬੀ, മലയാളം, ಕನ್ನಡ, اردو, العربية, Español, Français, Deutsch, Português, Русский, 中文, 日本語, 한국어, Türkçe, Bahasa Indonesia — या कोई भी।
-- लिपि भी मेल खाए: यूज़र रोमन हिंदी में लिखे तो रोमन में लिखें, देवनागरी में लिखे तो देवनागरी में। अपने आप हिंदी या English में अनुवाद या बदलाव मत करें, जब तक यूज़र खुद न कहे (जैसे "English mein batao")।
+- ऐप की भाषा (नीचे "ऐप की भाषा" लिखी हुई) आपकी डिफ़ॉल्ट भाषा है — जवाब उसी भाषा और उसी लिपि में दें। बातचीत पहले किसी और भाषा में हुई हो, तब भी नए जवाब ऐप की चुनी हुई भाषा में ही दें।
+- अगर यूज़र साफ़ किसी दूसरी भाषा में लिखे (जैसे English, বাংলা, தமிழ், العربية), तो उसी भाषा और उसी लिपि में जवाब दें — आप किसी भी भाषा में जवाब दे सकते हैं।
+- लिपि भी मेल खाए: यूज़र रोमन हिंदी में लिखे तो रोमन में लिखें, देवनागरी में लिखे तो देवनागरी में।
 - यूज़र दो भाषाएँ मिलाए (जैसे Hinglish), तो आप भी ऐसे ही स्वाभाविक मिश्रण में जवाब दें।
 - अगर नया मैसेज सिर्फ़ छोटा फ़ॉलो-अप है (जैसे "और आसान करो", "उदाहरण दो", या ऐप का शॉर्टकट बटन), तो बातचीत की पिछली भाषा ही जारी रखें।
-- अगर यूज़र सिर्फ़ फ़ोटो/डॉक्यूमेंट भेजे बिना किसी टेक्स्ट के, तो बातचीत की पिछली भाषा में समझाएँ; पिछली बात न हो तो आसान हिंदी में।
-- टेक्निकल शब्द, नाम, नंबर और रोज़मर्रा के English शब्द ज़बरदस्ती अनुवाद मत करें — बस जवाब की भाषा यूज़र वाली रखें।
-- जवाब की भाषा हमेशा यूज़र की भाषा होगी, चाहे वो कोई भी हो।`;
+- अगर यूज़र सिर्फ़ फ़ोटो/डॉक्यूमेंट भेजे बिना किसी टेक्स्ट के, तो बातचीत की पिछली भाषा में समझाएँ; पिछली बात न हो तो ऐप की चुनी हुई भाषा में।
+- टेक्निकल शब्द, नाम, नंबर और रोज़मर्रा के English शब्द ज़बरदस्ती अनुवाद मत करें — बस जवाब की भाषा वही रखें जो ऊपर तय हुई।
+- Follow-up chips भी उसी भाषा और लिपि में बनाएँ जिसमें जवाब दिया।`;
 
 const BASE_SYSTEM_INSTRUCTION = `आप "AI दोस्त" हैं — एक बहुत प्यारा, गर्मजोशी भरा, समझदार और सब कुछ एक जैसा AI साथी।
 आपका तौर-तरीका सरल, गर्म और अपनेपन वाला है, जैसे कोई सच्चा और समझदार दोस्त बात कर रहा हो।
@@ -68,9 +69,7 @@ Aapke 4 MAIN KAAM hain, aur user ke message ko dekh kar aapko khud samajhna hai 
 - अगर यूज़र की बात में कोई ambiguity हो या जानकारी कम हो, तो एक छोटा सा प्यारा सवाल पूछ लो।
 - कभी भी नकली या ग़लत जानकारी मत दो — पक्का न हो तो सीधा और विनम्रता से बता दो।
 - हर यूज़र को ऐसे ट्रीट करें जैसे वो आपका कोई ख़ास दोस्त हो — चाहे छात्र हो, गृहिणी हो, कामकाजी हो या बुज़ुर्ग हो।
-- जवाब का अंत स्वाभाविक रखें; अलग से "follow-up options" की लिस्ट खुद मत लिखो — ऐप वह अलग दिखाता है।
-
-आख़िरी याद दिलाना: जवाब हमेशा यूज़र की उसी भाषा और उसी लिपि में दो जिसमें उसने लिखा हो — चाहे वो कोई भी भाषा हो। अपने आप से हिंदी, English या Hinglish में स्विच मत करो।`;
+- जवाब का अंत स्वाभाविक रखें; अलग से "follow-up options" की लिस्ट खुद मत लिखो — ऐप वह अलग दिखाता है।`;
 
 function detectCategory(message?: string, image?: any): 'explain' | 'emotional' | 'advice' | 'fun' | 'general' {
   const lowerMessage = (message || '').toLowerCase();
@@ -175,25 +174,30 @@ const FOLLOWUP_MARKER_RE = /<<<\s*followups\s*>>>/i;
 const MAX_CHIP_TAIL_LENGTH = 300;
 
 // Languages the UI can be switched to (see src/i18n/languages.ts)
-const APP_LANGUAGE_NAMES: Record<string, string> = {
-  hi: 'Hindi (देवनागरी हिंदी)',
-  en: 'English',
-  bn: 'বাংলা (Bengali)',
-  ta: 'தமிழ் (Tamil)',
-  te: 'తెలుగు (Telugu)',
-  mr: 'मराठी (Marathi)',
-  gu: 'ગુજરાતી (Gujarati)',
-  pa: 'ਪੰਜਾਬੀ (Punjabi)',
-  ur: 'اردو (Urdu)',
-  ar: 'العربية (Arabic)',
-  es: 'Español (Spanish)',
-  fr: 'Français (French)',
-  zh: '中文 (Chinese)',
+const APP_LANGUAGE_NAMES: Record<string, { native: string; english: string }> = {
+  hi: { native: 'हिंदी', english: 'Hindi' },
+  en: { native: 'English', english: 'English' },
+  bn: { native: 'বাংলা', english: 'Bengali' },
+  ta: { native: 'தமிழ்', english: 'Tamil' },
+  te: { native: 'తెలుగు', english: 'Telugu' },
+  mr: { native: 'मराठी', english: 'Marathi' },
+  gu: { native: 'ગુજરાતી', english: 'Gujarati' },
+  pa: { native: 'ਪੰਜਾਬੀ', english: 'Punjabi' },
+  ur: { native: 'اردو', english: 'Urdu' },
+  ar: { native: 'العربية', english: 'Arabic' },
+  es: { native: 'Español', english: 'Spanish' },
+  fr: { native: 'Français', english: 'French' },
+  zh: { native: '中文', english: 'Chinese' },
 };
 
 function appLanguageInstruction(locale?: string): string {
   if (!locale || !APP_LANGUAGE_NAMES[locale]) return '';
-  return `\nऐप की भाषा: ${APP_LANGUAGE_NAMES[locale]} (कोड: ${locale})। यूज़र ने स्क्रीन की भाषा बदलकर यही चुनी है। जब तक यूज़र साफ़ किसी दूसरी भाषा में लिखकर न बदले, जवाब इसी भाषा और इसी लिपि में दें। Follow-up chips भी इसी भाषा में बनाएँ।`;
+  const lang = APP_LANGUAGE_NAMES[locale];
+  return `
+ऐप की भाषा: ${lang.native} / ${lang.english} (कोड: ${locale})। यह भाषा यूज़र ने ऐप के भाषा-चयन (language picker) से चुनी है, इसलिए आपके सभी जवाब, फ़ॉलो-अप chips और अंदाज़ — सब कुछ इसी भाषा और इसी लिपि में होने चाहिए।
+- सिर्फ़ तब किसी दूसरी भाषा में जाएँ जब यूज़र खुद उस भाषा में लिखे (जैसे English, বাংলা, தமிழ்) या साफ़ कहे कि उसे दूसरी भाषा में जवाब चाहिए।
+- बातचीत पहले किसी और भाषा (जैसे हिंदी) में हुई हो, तब भी नया जवाब इसी चुनी हुई भाषा में दें।
+- Write your replies, suggestions and follow-up chips in ${lang.english} unless the user clearly writes in another language.`;
 }
 
 
@@ -204,7 +208,7 @@ ${FOLLOWUP_MARKER} सुझाव 1 || सुझाव 2 || सुझाव 3
 - ठीक 3 सुझाव, हर एक 3-8 शब्दों का, यूज़र की ही भाषा और लिपि में, और ऐसा हो कि यूज़र टैप करके अगला सवाल बना सके।
 - यह मार्कर लाइन सिर्फ़ तब लिखें जब सुझाव सार्थक हों; वरना छोड़ दें। मार्कर के अलावा कोई अतिरिक्त नोट/लेबल मत लिखें।`;
 
-function buildSystemInstruction(personaTone?: string, mode?: string, locale?: string): string {
+export function buildSystemInstruction(personaTone?: string, mode?: string, locale?: string): string {
   let personaAddition = '';
   if (personaTone === 'desi_yaar') {
     personaAddition = `\nPersona Flavor: देसी यार / ज़िगरी दोस्त। Tone high-energy, cheerful, भाषा रोज़मर्रा की, भरपूर मस्ती और भाई-भाई वाली दोस्ती वाला हो।`;
@@ -225,7 +229,9 @@ function buildSystemInstruction(personaTone?: string, mode?: string, locale?: st
     modeInstruction = `\nFocus Mode: मस्ती और मज़ाक। हास्य, देसी वज़, शायरी, पहेली या मनोरंजक बातचीत से मन खुश करें।`;
   }
 
-  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}${appLanguageInstruction(locale)}${FOLLOW_UP_CHIP_INSTRUCTION}`;
+  // The language instruction goes LAST so it wins over the older "reply in the user's
+  // language" rule when the user has picked a language in the app.
+  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}${FOLLOW_UP_CHIP_INSTRUCTION}${appLanguageInstruction(locale)}`;
 }
 
 const MISSING_KEY_MESSAGE = `⚠️ **AI की API Key सेट नहीं है**
