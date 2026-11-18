@@ -81,7 +81,7 @@ export const en = {
 
   // ---------- welcome hero ----------
   'welcome.greeting': 'Hello! I am',
-  'welcome.brand': 'My AI Dost',
+  'welcome.brand': 'AI Dost',
 
   // ---------- sidebar ----------
   'sidebar.title': 'My AI Dost',
