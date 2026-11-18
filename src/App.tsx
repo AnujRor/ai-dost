@@ -503,12 +503,6 @@ export default function App() {
         hasMessages={messages.length > 0}
       />
 
-      {/* 4 Pillars Category Bar */}
-      <CategoryBar
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
-      />
-
       {/* Main Conversation Stream */}
       <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-2 relative z-10">
         <div className="max-w-4xl mx-auto w-full">
@@ -531,6 +525,12 @@ export default function App() {
           )}
         </div>
       </main>
+
+      {/* Category Bar (just above the chat input) */}
+      <CategoryBar
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+      />
 
       {/* Bottom Chat Input */}
       <ChatInput
