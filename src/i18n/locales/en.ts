@@ -85,14 +85,6 @@ export const en = {
   'welcome.badge': 'Your friend who shows up in every mode',
   'welcome.greeting': 'Hello! I am',
   'welcome.brand': 'My AI Dost',
-  'welcome.popular': 'Popular questions & topics',
-
-  // ---------- quick actions toolbar ----------
-  'qa.heading': 'Boosters:',
-  'qa.joke': 'Desi joke',
-  'qa.shayari': 'Beautiful shayari',
-  'qa.motivation': 'Daily motivation',
-  'qa.paheli': 'Ask me a riddle',
 
   // ---------- sidebar ----------
   'sidebar.title': 'My AI Dost',
@@ -216,38 +208,6 @@ export const en = {
     'Desi jokes, relatable funny stories, shayari, riddles and light banter to brighten your day.',
   'cat.general.name': 'All-in-one friend',
   'cat.general.desc': 'Ask anything, share anything — your own friend is always ready.',
-
-  // ---------- quick prompts ----------
-  'prompt.bill.title': 'Explain a phone/electricity bill',
-  'prompt.bill.subtitle': 'What are fixed charge, units and subsidy?',
-  'prompt.bill.prompt':
-    'My electricity bill is higher than usual this time. Explain in simple words what the fixed charge, energy charge and unit rate in the bill mean.',
-  'prompt.sip.title': 'What are SIP & mutual funds?',
-  'prompt.sip.subtitle': 'A beginner guide in very simple words',
-  'prompt.sip.prompt':
-    'What are mutual funds and SIP? Explain it to me as simply as you would to a 10-year-old.',
-  'prompt.tired.title': 'I am exhausted / low today',
-  'prompt.tired.subtitle': 'I want to lighten my heart...',
-  'prompt.tired.prompt':
-    'Friend, today has been a really hectic and stressful day. My mind is tired, I just want to hear something positive.',
-  'prompt.overthink.title': 'Anxiety & overthinking about the future',
-  'prompt.overthink.subtitle': 'How to calm the mind',
-  'prompt.overthink.prompt':
-    'I overthink a lot about my future and career. Explain how I can keep my mind on the present.',
-  'prompt.leave.title': 'How to ask my boss for urgent leave?',
-  'prompt.leave.subtitle': '2-3 ready WhatsApp/email options',
-  'prompt.leave.prompt':
-    'I need leave tomorrow for something urgent. Give me 2-3 practical WhatsApp message options to send my boss (polite, direct and professional).',
-  'prompt.money.title': 'How to ask a friend for money back?',
-  'prompt.money.subtitle': 'Gentle reminders without spoiling the relation',
-  'prompt.money.prompt':
-    'I lent some money to a friend a few months ago. Without being awkward or angry, give me 3 good options to remind them lovingly.',
-  'prompt.joke.title': 'Tell me a fun desi joke',
-  'prompt.joke.subtitle': 'A dose of laughter',
-  'prompt.joke.prompt': 'Friend, tell me a really fresh and funny desi joke that makes me laugh!',
-  'prompt.shayari.title': 'A lovely shayari about life',
-  'prompt.shayari.subtitle': 'Lines that touch the heart',
-  'prompt.shayari.prompt': 'Tell me a beautiful, relatable shayari about life, friendship or hard work.',
 
   // ---------- sample documents ----------
   'doc.bill.name': 'Electricity bill (sample)',

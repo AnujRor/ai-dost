@@ -101,7 +101,7 @@ AI/key errors are returned as **HTTP 200 with `isError: true`** and a friendly H
 
 ### UI language (English-only)
 
-- There is **no language picker** and no `locale` in the chat request. Every on-screen string (buttons, placeholders, tooltips, modals, personas, quick prompts, sample documents, error messages) comes from `t('key')` and resolves to English.
+- There is **no language picker** and no `locale` in the chat request. Every on-screen string (buttons, placeholders, tooltips, modals, personas, sample documents, error messages) comes from `t('key')` and resolves to English.
 - `src/i18n/locales/en.ts` is the source of truth for the keys; `TranslationKey` is `keyof typeof en`, so adding or removing a key immediately updates the type used by every component. `translate()` only interpolates `{name}` / `{count}` placeholders.
 - `<html lang="en-IN">` and `dir="ltr"` are fixed; timestamps use `en-IN`.
 - **Adding/editing UI copy:** add or change the key in `src/i18n/locales/en.ts` and use it via `t('your.key')`. Keep `npm run lint` green.
@@ -168,7 +168,8 @@ curl -s -X POST localhost:3000/api/chat -H "content-type: application/json" -d "
 - `speech.ts`: naya `detectSpeechLang()` reply text ke script se TTS language chunta hai (Devanagari/Bengali/Tamil/Telugu/Gujarati/Gurmukhi/Arabic/Urdu/Han/Japanese/Korean/Cyrillic/Hebrew/Thai), aur `pickVoice()` matching voice + sensible fallback. Recognition default ab `navigator.language`. Error string English.
 - `index.html`: `lang="en-IN"`, title/description/keywords/OG/Twitter/JSON-LD/FAQ/`<noscript>` sab English; Rozha One + Yatra One Devanagari fonts hata diye (sirf Plus Jakarta Sans). `public/site.webmanifest` English + `lang: en-IN`.
 - User-visible server messages bhi English: API-key/limit error cards, `Try again` chips, `getFollowUps()` fallback chips, "answer stopped midway" note, 400/404 errors, quick-action prompts aur `IMAGE_ONLY_PROMPT` (taaki model ko Hindi prompt se bias na mile). Model instructions (`LANGUAGE_RULE`, `BASE_SYSTEM_INSTRUCTION`, persona/mode blocks) Hindi me hi hain — woh screen par nahi dikhte.
-- **Welcome screen simplify:** "My 4 main jobs" wale chaar cards, intro paragraph aur "Talk in any language" / "Zero judgement & full privacy" badges hata diye. Ab sirf badge + avatar/greeting + "Popular questions & topics" grid rehta hai. 15 unused `welcome.*` keys bhi delete.
+- **Welcome screen simplify:** "My 4 main jobs" wale chaar cards, intro paragraph aur "Talk in any language" / "Zero judgement & full privacy" badges hata diye. Ab sirf badge + avatar/greeting rehta hai. 15 unused `welcome.*` keys bhi delete.
+- **Boosters toolbar + popular prompts hataye:** neeche wala "Boosters:" toolbar (joke/shayari/motivation/riddle) aur welcome ka "Popular questions & topics" grid dono remove. `QuickActionToolbar.tsx` delete; `getQuickPrompts()` + `QuickPromptItem` type aur `qa.*` / `prompt.*` keys bhi. Header ka Booster button aur `BoosterModal` abhi bhi maujood hai (same 4 actions modal me).
 
 **Verified**
 - `npm run lint` ✅, `npx vite build` ✅.

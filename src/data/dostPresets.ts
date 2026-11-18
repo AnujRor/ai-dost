@@ -1,4 +1,4 @@
-import { DostCategory, PersonaProfile, QuickPromptItem } from '../types';
+import { DostCategory, PersonaProfile } from '../types';
 import { TranslateFn } from '../i18n';
 
 export interface CategoryInfo {
@@ -91,73 +91,6 @@ export const getCategoryInfo = (t: TranslateFn): Record<DostCategory, CategoryIn
     description: t('cat.general.desc'),
   },
 });
-
-export const getQuickPrompts = (t: TranslateFn): QuickPromptItem[] => [
-  {
-    id: 'exp-bill',
-    title: t('prompt.bill.title'),
-    subtitle: t('prompt.bill.subtitle'),
-    prompt: t('prompt.bill.prompt'),
-    category: 'explain',
-    emoji: '⚡',
-  },
-  {
-    id: 'exp-mutual-funds',
-    title: t('prompt.sip.title'),
-    subtitle: t('prompt.sip.subtitle'),
-    prompt: t('prompt.sip.prompt'),
-    category: 'explain',
-    emoji: '💰',
-  },
-  {
-    id: 'emo-stress',
-    title: t('prompt.tired.title'),
-    subtitle: t('prompt.tired.subtitle'),
-    prompt: t('prompt.tired.prompt'),
-    category: 'emotional',
-    emoji: '☕',
-  },
-  {
-    id: 'emo-overthinking',
-    title: t('prompt.overthink.title'),
-    subtitle: t('prompt.overthink.subtitle'),
-    prompt: t('prompt.overthink.prompt'),
-    category: 'emotional',
-    emoji: '🌱',
-  },
-  {
-    id: 'adv-boss-leave',
-    title: t('prompt.leave.title'),
-    subtitle: t('prompt.leave.subtitle'),
-    prompt: t('prompt.leave.prompt'),
-    category: 'advice',
-    emoji: '📩',
-  },
-  {
-    id: 'adv-money-back',
-    title: t('prompt.money.title'),
-    subtitle: t('prompt.money.subtitle'),
-    prompt: t('prompt.money.prompt'),
-    category: 'advice',
-    emoji: '🤝',
-  },
-  {
-    id: 'fun-joke',
-    title: t('prompt.joke.title'),
-    subtitle: t('prompt.joke.subtitle'),
-    prompt: t('prompt.joke.prompt'),
-    category: 'fun',
-    emoji: '😂',
-  },
-  {
-    id: 'fun-shayari',
-    title: t('prompt.shayari.title'),
-    subtitle: t('prompt.shayari.subtitle'),
-    prompt: t('prompt.shayari.prompt'),
-    category: 'fun',
-    emoji: '✍️',
-  },
-];
 
 export const getSampleDocuments = (t: TranslateFn) => [
   {

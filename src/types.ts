@@ -41,12 +41,3 @@ export interface PersonaProfile {
   badge: string;
   color: string;
 }
-
-export interface QuickPromptItem {
-  id: string;
-  title: string;
-  prompt: string;
-  category: DostCategory;
-  emoji: string;
-  subtitle: string;
-}

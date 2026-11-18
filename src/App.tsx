@@ -4,7 +4,6 @@ import { CategoryBar } from './components/CategoryBar';
 import { ChatBubble } from './components/ChatBubble';
 import { ChatInput } from './components/ChatInput';
 import { WelcomeHero } from './components/WelcomeHero';
-import { QuickActionToolbar } from './components/QuickActionToolbar';
 import { Sidebar } from './components/Sidebar';
 import { PersonaSelectorModal } from './components/PersonaSelectorModal';
 import { DocumentHelperModal } from './components/DocumentHelperModal';
@@ -527,11 +526,7 @@ export default function App() {
       <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 space-y-2 relative z-10">
         <div className="max-w-4xl mx-auto w-full">
           {messages.length === 0 ? (
-            <WelcomeHero
-              currentPersona={currentPersona}
-              onSelectPrompt={(prompt, category) => handleSendMessage(prompt, undefined, category)}
-              onOpenDocModal={() => setIsDocModalOpen(true)}
-            />
+            <WelcomeHero currentPersona={currentPersona} />
           ) : (
             <div className="space-y-2">
               {messages.map((msg) => (
@@ -549,14 +544,6 @@ export default function App() {
           )}
         </div>
       </main>
-
-      {/* Quick Action Toolbar (1-Tap Boosters) */}
-      <div className="bg-white/20 backdrop-blur-md border-t border-white/30 relative z-10">
-        <QuickActionToolbar
-          onTriggerQuickAction={handleQuickAction}
-          isLoading={isLoading}
-        />
-      </div>
 
       {/* Bottom Chat Input */}
       <ChatInput
