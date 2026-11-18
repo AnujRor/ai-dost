@@ -29,7 +29,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   onSendFollowUp,
   onReExplain,
 }) => {
-  const { t, htmlLang, locale } = useLanguage();
+  const { t, htmlLang } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showImageZoom, setShowImageZoom] = useState(false);
@@ -58,8 +58,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
         message.text,
         () => setIsSpeaking(true),
         () => setIsSpeaking(false),
-        () => setIsSpeaking(false),
-        locale
+        () => setIsSpeaking(false)
       );
     }
   };

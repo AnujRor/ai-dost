@@ -1,13 +1,13 @@
 {
-  "name": "AI Dost — आपका अपना हिंदी AI साथी",
+  "name": "AI Dost — Your Friendly AI Companion",
   "short_name": "AI Dost",
-  "description": "AI Dost by Anuj Ror — बिल, नोटिस और मुश्किल विषय आसान हिंदी में समझिए, दिल की बात कीजिए, स्मार्ट जवाब विकल्प लीजिए और मस्ती कीजिए.",
+  "description": "AI Dost by Anuj Ror — understand bills, notices and tricky topics in plain language, talk about how you feel, get smart reply options and enjoy some fun.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#FFE4E1",
   "theme_color": "#F97316",
-  "lang": "hi-IN",
+  "lang": "en-IN",
   "icons": [
     {
       "src": "/favicon.svg",

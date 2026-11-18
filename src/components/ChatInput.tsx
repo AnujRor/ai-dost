@@ -49,7 +49,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   selectedCategory,
   onCategoryChange,
 }) => {
-  const { t, locale } = useLanguage();
+  const { t } = useLanguage();
   const [inputText, setInputText] = useState('');
   const [attachedImage, setAttachedImage] = useState<{
     data: string;
@@ -140,8 +140,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         },
         () => {
           setIsListening(false);
-        },
-        locale
+        }
       );
 
       if (recognizer) {

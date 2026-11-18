@@ -22,7 +22,7 @@ const STORAGE_KEY_PERSONA = 'mera_ai_dost_persona';
 const STORAGE_KEY_AUDIO = 'mera_ai_dost_audio';
 
 export default function App() {
-  const { t, locale, htmlLang, dir } = useLanguage();
+  const { t, htmlLang, dir } = useLanguage();
 
   // Personas (translated)
   const personaProfiles = React.useMemo(() => getPersonaProfiles(t), [t]);
@@ -227,7 +227,6 @@ export default function App() {
         })),
         personaTone: currentPersona.id,
         mode: modeToSend,
-        locale, // app language chosen by the user — the AI replies in it
       });
 
       const response = await fetch('/api/chat/stream', {
@@ -277,7 +276,7 @@ export default function App() {
         );
 
         if (isAudioEnabled && data.text && !isFallbackError) {
-          speechManager.speak(data.text, undefined, undefined, undefined, locale);
+          speechManager.speak(data.text);
         }
         return;
       }
@@ -362,7 +361,7 @@ export default function App() {
 
       // Speak aloud if enabled and not an error
       if (isAudioEnabled && finalText && !isErrorOccurred) {
-        speechManager.speak(finalText, undefined, undefined, undefined, locale);
+        speechManager.speak(finalText);
       }
     } catch (err: any) {
       console.error('Send message error:', err);

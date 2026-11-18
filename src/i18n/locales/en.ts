@@ -1,6 +1,9 @@
-import type { TranslationKey } from './hi';
-
-const en: Record<TranslationKey, string> = {
+/**
+ * The on-screen UI is English-only. This file is the single source of truth for
+ * every visible string — `TranslationKey` is derived from these keys, so adding
+ * or removing a key here immediately updates the type used across the app.
+ */
+export const en = {
   // ---------- common ----------
   'common.appName': 'AI Dost',
   'common.you': 'You',
@@ -8,12 +11,6 @@ const en: Record<TranslationKey, string> = {
   'common.newChat': 'New conversation',
   'common.photoDocument': 'Photo document',
   'common.back': 'Back',
-
-  // ---------- language picker ----------
-  'lang.label': 'Language',
-  'lang.title': 'Change the app language',
-  'lang.aria': 'Choose a language',
-  'lang.hint': 'The whole screen switches to this language.',
 
   // ---------- header ----------
   'header.savedChatsTitle': 'Saved chats & scenarios',
@@ -286,6 +283,8 @@ const en: Record<TranslationKey, string> = {
   'doc.kyc.desc': 'Sample bank letter about pending re-KYC and an account suspension warning.',
   'doc.awkward.name': 'Awkward WhatsApp chat (reply scenario)',
   'doc.awkward.desc': 'An acquaintance asks for a big favour for free over the weekend.',
-};
+} as const;
+
+export type TranslationKey = keyof typeof en;
 
 export default en;

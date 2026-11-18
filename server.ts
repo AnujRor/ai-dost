@@ -29,12 +29,11 @@ function getGeminiClient(): GoogleGenAI {
 }
 
 const LANGUAGE_RULE = `भाषा नियम (सबसे पहले और सबसे ज़रूरी — हर जवाब पर लागू):
-- ऐप की भाषा (नीचे "ऐप की भाषा" लिखी हुई) आपकी डिफ़ॉल्ट भाषा है — जवाब उसी भाषा और उसी लिपि में दें। बातचीत पहले किसी और भाषा में हुई हो, तब भी नए जवाब ऐप की चुनी हुई भाषा में ही दें।
-- अगर यूज़र साफ़ किसी दूसरी भाषा में लिखे (जैसे English, বাংলা, தமிழ், العربية), तो उसी भाषा और उसी लिपि में जवाब दें — आप किसी भी भाषा में जवाब दे सकते हैं।
-- लिपि भी मेल खाए: यूज़र रोमन हिंदी में लिखे तो रोमन में लिखें, देवनागरी में लिखे तो देवनागरी में।
+- ऐप की कोई तय भाषा नहीं है। हमेशा ठीक उसी भाषा और उसी लिपि में जवाब दें जिस भाषा में यूज़र ने अपना आख़िरी संदेश लिखा है।
+- लिपि भी मेल खाए: यूज़र देवनागरी हिंदी में लिखे तो देवनागरी में, रोमन हिंदी/Hinglish में लिखे तो रोमन में, English में लिखे तो English में, বাংলা, தமிழ், العربية या दुनिया की किसी भी भाषा में लिखे तो उसी भाषा और उसी लिपि में जवाब दें।
 - यूज़र दो भाषाएँ मिलाए (जैसे Hinglish), तो आप भी ऐसे ही स्वाभाविक मिश्रण में जवाब दें।
 - अगर नया मैसेज सिर्फ़ छोटा फ़ॉलो-अप है (जैसे "और आसान करो", "उदाहरण दो", या ऐप का शॉर्टकट बटन), तो बातचीत की पिछली भाषा ही जारी रखें।
-- अगर यूज़र सिर्फ़ फ़ोटो/डॉक्यूमेंट भेजे बिना किसी टेक्स्ट के, तो बातचीत की पिछली भाषा में समझाएँ; पिछली बात न हो तो ऐप की चुनी हुई भाषा में।
+- अगर यूज़र सिर्फ़ फ़ोटो/डॉक्यूमेंट भेजे बिना किसी टेक्स्ट के, तो बातचीत की पिछली भाषा में समझाएँ; पिछली बात न हो तो यूज़र के आम इस्तेमाल की भाषा में।
 - टेक्निकल शब्द, नाम, नंबर और रोज़मर्रा के English शब्द ज़बरदस्ती अनुवाद मत करें — बस जवाब की भाषा वही रखें जो ऊपर तय हुई।
 - Follow-up chips भी उसी भाषा और लिपि में बनाएँ जिसमें जवाब दिया।`;
 
@@ -156,15 +155,15 @@ function detectCategory(message?: string, image?: any): 'explain' | 'emotional' 
 
 function getFollowUps(category: 'explain' | 'emotional' | 'advice' | 'fun' | 'general'): string[] {
   if (category === 'explain') {
-    return ['और आसान भाषा में समझाओ', 'इसका एक असली उदाहरण दो', 'अगला कदम क्या होना चाहिए?'];
+    return ['Explain it in even simpler words', 'Give me a real-life example', 'What should I do next?'];
   } else if (category === 'emotional') {
-    return ['एक प्यारी सी सकारात्मक बात सुनाओ', 'मन शांत करने का कोई तेज़ उपाय?', 'शुक्रिया दोस्त, थोड़ा बेहतर लग रहा है ❤️'];
+    return ['Tell me something warm and positive', 'Any quick way to calm my mind?', 'Thanks, I feel a little better ❤️'];
   } else if (category === 'advice') {
-    return ['विकल्प 1 को और सहज बनाओ', 'अगर सामने वाले का जवाब नकारात्मक आए तो?', 'एक छोटा WhatsApp वर्शन दे दो'];
+    return ['Make option 1 softer', 'What if they reply negatively?', 'Give me a short WhatsApp version'];
   } else if (category === 'fun') {
-    return ['एक और मज़ेदार जोक सुनाओ 😂', 'एक नई पहेली पूछो', 'कोई दोस्ती वाली शायरी सुनाओ'];
+    return ['Tell me another funny joke 😂', 'Ask me a new riddle', 'Recite a friendship shayari'];
   }
-  return ['कुछ मज़ेदार बताओ', 'मेरा कोई topic समझाओगे?', 'आज का एक सकारात्मक विचार दो'];
+  return ['Tell me something fun', 'Can you explain a topic for me?', 'Give me a positive thought for today'];
 }
 
 const FOLLOWUP_MARKER = '<<<FOLLOWUPS>>>';
@@ -173,34 +172,6 @@ const FOLLOWUP_MARKER_RE = /<<<\s*followups\s*>>>/i;
 // Anything longer than this after the marker means the marker was not the last line
 const MAX_CHIP_TAIL_LENGTH = 300;
 
-// Languages the UI can be switched to (see src/i18n/languages.ts)
-const APP_LANGUAGE_NAMES: Record<string, { native: string; english: string }> = {
-  hi: { native: 'हिंदी', english: 'Hindi' },
-  en: { native: 'English', english: 'English' },
-  bn: { native: 'বাংলা', english: 'Bengali' },
-  ta: { native: 'தமிழ்', english: 'Tamil' },
-  te: { native: 'తెలుగు', english: 'Telugu' },
-  mr: { native: 'मराठी', english: 'Marathi' },
-  gu: { native: 'ગુજરાતી', english: 'Gujarati' },
-  pa: { native: 'ਪੰਜਾਬੀ', english: 'Punjabi' },
-  ur: { native: 'اردو', english: 'Urdu' },
-  ar: { native: 'العربية', english: 'Arabic' },
-  es: { native: 'Español', english: 'Spanish' },
-  fr: { native: 'Français', english: 'French' },
-  zh: { native: '中文', english: 'Chinese' },
-};
-
-function appLanguageInstruction(locale?: string): string {
-  if (!locale || !APP_LANGUAGE_NAMES[locale]) return '';
-  const lang = APP_LANGUAGE_NAMES[locale];
-  return `
-ऐप की भाषा: ${lang.native} / ${lang.english} (कोड: ${locale})। यह भाषा यूज़र ने ऐप के भाषा-चयन (language picker) से चुनी है, इसलिए आपके सभी जवाब, फ़ॉलो-अप chips और अंदाज़ — सब कुछ इसी भाषा और इसी लिपि में होने चाहिए।
-- सिर्फ़ तब किसी दूसरी भाषा में जाएँ जब यूज़र खुद उस भाषा में लिखे (जैसे English, বাংলা, தமிழ்) या साफ़ कहे कि उसे दूसरी भाषा में जवाब चाहिए।
-- बातचीत पहले किसी और भाषा (जैसे हिंदी) में हुई हो, तब भी नया जवाब इसी चुनी हुई भाषा में दें।
-- Write your replies, suggestions and follow-up chips in ${lang.english} unless the user clearly writes in another language.`;
-}
-
-
 const FOLLOW_UP_CHIP_INSTRUCTION = `
 फ़ॉलो-अप चिप्स (ऐप के टैप-योग्य सुझाव):
 - जवाब के बिल्कुल अंत में, एक नई लाइन पर ठीक यह फ़ॉर्मेट लिखें (और उस लाइन के बाद कुछ नहीं):
@@ -208,7 +179,10 @@ ${FOLLOWUP_MARKER} सुझाव 1 || सुझाव 2 || सुझाव 3
 - ठीक 3 सुझाव, हर एक 3-8 शब्दों का, यूज़र की ही भाषा और लिपि में, और ऐसा हो कि यूज़र टैप करके अगला सवाल बना सके।
 - यह मार्कर लाइन सिर्फ़ तब लिखें जब सुझाव सार्थक हों; वरना छोड़ दें। मार्कर के अलावा कोई अतिरिक्त नोट/लेबल मत लिखें।`;
 
-export function buildSystemInstruction(personaTone?: string, mode?: string, locale?: string): string {
+const FINAL_LANGUAGE_REMINDER = `
+अंतिम याद: जवाब और follow-up chips ठीक उसी भाषा और उसी लिपि में लिखें जिसमें यूज़र ने अपनी आख़िरी बात लिखी है। ऐप का UI English है, लेकिन जवाब की भाषा हमेशा यूज़र तय करता है।`;
+
+export function buildSystemInstruction(personaTone?: string, mode?: string): string {
   let personaAddition = '';
   if (personaTone === 'desi_yaar') {
     personaAddition = `\nPersona Flavor: देसी यार / ज़िगरी दोस्त। Tone high-energy, cheerful, भाषा रोज़मर्रा की, भरपूर मस्ती और भाई-भाई वाली दोस्ती वाला हो।`;
@@ -229,22 +203,20 @@ export function buildSystemInstruction(personaTone?: string, mode?: string, loca
     modeInstruction = `\nFocus Mode: मस्ती और मज़ाक। हास्य, देसी वज़, शायरी, पहेली या मनोरंजक बातचीत से मन खुश करें।`;
   }
 
-  // The language instruction goes LAST so it wins over the older "reply in the user's
-  // language" rule when the user has picked a language in the app.
-  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}${FOLLOW_UP_CHIP_INSTRUCTION}${appLanguageInstruction(locale)}`;
+  return `${BASE_SYSTEM_INSTRUCTION}${personaAddition}${modeInstruction}${FOLLOW_UP_CHIP_INSTRUCTION}${FINAL_LANGUAGE_REMINDER}`;
 }
 
-const MISSING_KEY_MESSAGE = `⚠️ **AI की API Key सेट नहीं है**
+const MISSING_KEY_MESSAGE = `⚠️ **AI API key is not set**
 
-AI Dost को जवाब देने के लिए एक **मुफ़्त** API key चाहिए।
+AI Dost needs a **free** API key to answer.
 
-**मुफ़्त Groq key लेने के आसान तरीके:**
-1. [console.groq.com/keys](https://console.groq.com/keys) खोलिए और लॉगिन कीजिए।
-2. **Create API Key** पर क्लिक करके key कॉपी कीजिए।
-3. Project folder में \`.env\` file खोलिए और लिखिए: \`GROQ_API_KEY=aapki_key\`
-4. Server को बंद करके दोबारा \`npm run dev\` चलाइए।
+**Easy way to get a free Groq key:**
+1. Open [console.groq.com/keys](https://console.groq.com/keys) and log in.
+2. Click **Create API Key** and copy the key.
+3. Open the \`.env\` file in the project folder and add: \`GROQ_API_KEY=your_key\`
+4. Stop the server and run \`npm run dev\` again.
 
-_(OpenRouter key भी चलेगी: \`OPENROUTER_API_KEY=...\` — [openrouter.ai/keys](https://openrouter.ai/keys) | Gemini key: [aistudio.google.com/apikey](https://aistudio.google.com/apikey))_`;
+_(An OpenRouter key also works: \`OPENROUTER_API_KEY=...\` — [openrouter.ai/keys](https://openrouter.ai/keys) | Gemini key: [aistudio.google.com/apikey](https://aistudio.google.com/apikey))_`;
 
 // Vercel/env values sometimes arrive with stray whitespace or newlines (e.g. the same
 // key pasted more than once). HTTP headers reject newlines, so keep only the first token.
@@ -280,33 +252,33 @@ function formatErrorMessage(error: any): string {
   }
   if (error?.provider === 'groq') {
     if (error.status === 401) {
-      return `⚠️ **Groq API Key ग़लत है**\n\n\`.env\` file में जो \`GROQ_API_KEY\` लिखा है वो सही नहीं है। [console.groq.com/keys](https://console.groq.com/keys) से नई मुफ़्त key बनाकर \`.env\` में डालिए और server restart कीजिए।`;
+      return `⚠️ **Groq API key is invalid**\n\n\`GROQ_API_KEY\` in your \`.env\` file is not correct. Create a new free key at [console.groq.com/keys](https://console.groq.com/keys), put it in \`.env\` and restart the server.`;
     }
     if (error.status === 429) {
-      return `⚠️ **फ़्री लिमिट ख़तम**\n\nGroq की मुफ़्त लिमिट अभी पूरी हो गई है। कृपया थोड़ी देर बाद दोबारा कोशिश कीजिए।`;
+      return `⚠️ **Free limit reached**\n\nGroq's free limit is used up right now. Please try again in a little while.`;
     }
   }
   if (error?.provider === 'openrouter') {
     if (error.status === 401) {
-      return `⚠️ **OpenRouter API Key ग़लत है**\n\n\`.env\` file में जो \`OPENROUTER_API_KEY\` लिखा है वो सही नहीं है। [openrouter.ai/keys](https://openrouter.ai/keys) से नई मुफ़्त key बनाकर \`.env\` में डालिए और server restart कीजिए।`;
+      return `⚠️ **OpenRouter API key is invalid**\n\n\`OPENROUTER_API_KEY\` in your \`.env\` file is not correct. Create a new free key at [openrouter.ai/keys](https://openrouter.ai/keys), put it in \`.env\` and restart the server.`;
     }
     if (errMsg.includes('data policy') || errMsg.includes('privacy')) {
-      return `⚠️ **OpenRouter सेटिंग बदलनी होगी**\n\nमुफ़्त models के लिए [openrouter.ai/settings/privacy](https://openrouter.ai/settings/privacy) पर जाकर free model वाली सेटिंग **ON** कीजिए, फिर दोबारा कोशिश कीजिए।`;
+      return `⚠️ **OpenRouter settings need a change**\n\nFor free models, open [openrouter.ai/settings/privacy](https://openrouter.ai/settings/privacy), turn the free-model setting **ON**, then try again.`;
     }
     if (error.status === 429) {
-      return `⚠️ **फ़्री लिमिट ख़तम**\n\nOpenRouter की मुफ़्त लिमिट (हर मिनट/दिन की) अभी पूरी हो गई है। कृपया थोड़ी देर बाद दोबारा कोशिश कीजिए।`;
+      return `⚠️ **Free limit reached**\n\nOpenRouter's free limit (per minute/day) is used up right now. Please try again in a little while.`;
     }
   }
   if (errMsg.includes('API key not valid') || errMsg.includes('API_KEY_INVALID') || errMsg.includes('UNAUTHENTICATED')) {
-    return `⚠️ **Gemini API Key ग़लत है**\n\n\`.env\` file में जो \`GEMINI_API_KEY\` लिखा है वो सही नहीं है। [aistudio.google.com/apikey](https://aistudio.google.com/apikey) से नई मुफ़्त key बनाकर \`.env\` में डालिए और server restart कीजिए।`;
+    return `⚠️ **Gemini API key is invalid**\n\n\`GEMINI_API_KEY\` in your \`.env\` file is not correct. Create a new free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey), put it in \`.env\` and restart the server.`;
   }
   if (errMsg.includes('denied access') || errMsg.includes('PERMISSION_DENIED') || error?.status === 403 || error?.code === 403) {
-    return `⚠️ **Gemini API Key अपडेट करना ज़रूरी है**\n\nGoogle ने आपके Gemini project को access देने से मना कर दिया है (\`PERMISSION_DENIED\`).\n\n**इसे ठीक करने के आसान तरीके:**\n1. [openrouter.ai/keys](https://openrouter.ai/keys) से मुफ़्त key बनाकर \`.env\` में \`OPENROUTER_API_KEY=...\` लिखिए, **या**\n2. [aistudio.google.com/apikey](https://aistudio.google.com/apikey) पर **नया project** बनाकर Gemini key लीजिए।\n3. Server restart करते ही आपका **AI दोस्त** फिर से जवाब देने लगेगा!`;
+    return `⚠️ **Gemini API key needs an update**\n\nGoogle denied access to your Gemini project (\`PERMISSION_DENIED\`).\n\n**Easy ways to fix it:**\n1. Create a free key at [openrouter.ai/keys](https://openrouter.ai/keys) and add \`OPENROUTER_API_KEY=...\` to \`.env\`, **or**\n2. Create a **new project** at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and get a Gemini key there.\n3. Restart the server and AI Dost will start answering again!`;
   }
   if (errMsg.includes('quota') || errMsg.includes('429') || errMsg.includes('RESOURCE_EXHAUSTED')) {
-    return `⚠️ **API कोटा लिमिट ख़तम**\n\nमुफ़्त कोटा अभी ख़तम हो गया है। कृपया 1-2 मिनट बाद दोबारा कोशिश कीजिए।`;
+    return `⚠️ **API quota limit reached**\n\nThe free quota is used up right now. Please try again in 1-2 minutes.`;
   }
-  return `दोस्त, server से जुड़ने में थोड़ी तकलीफ़ हुई: ${errMsg || 'कनेक्शन समस्या'}। कृपया एक बार दोबारा कोशिश कीजिए।`;
+  return `There was a little trouble reaching the server: ${errMsg || 'connection problem'}. Please try once more.`;
 }
 
 function withPreferred(preferred: string | undefined, defaults: string[]): string[] {
@@ -646,7 +618,7 @@ async function streamWithFallback(
     () => res.destroyed
   );
   if (result.interrupted) {
-    res.write(`data: ${JSON.stringify({ chunk: '\n\n_(जवाब बीच में रुक गया, कृपया दोबारा पूछिए।)_' })}\n\n`);
+    res.write(`data: ${JSON.stringify({ chunk: '\n\n_(The answer stopped midway — please ask again.)_' })}\n\n`);
   }
   if (result.errorText) {
     res.write(`data: ${JSON.stringify({ chunk: result.errorText })}\n\n`);
@@ -665,7 +637,7 @@ async function generateWithFallback(ai: GoogleGenAI, contents: any[] | string, s
 
 
 const IMAGE_ONLY_PROMPT =
-  'इस फ़ोटो/डॉक्यूमेंट को ध्यान से देखिए और आसान भाषा में समझाइए कि इसमें क्या लिखा है और मेरे लिए क्या ज़रूरी है।';
+  'Look carefully at this photo/document and explain in plain language what it says and what matters to me.';
 
 // Turn the client's previous messages + the new message into Gemini `contents`
 function buildContents(history: any, message?: string, image?: any): any[] {
@@ -712,10 +684,10 @@ app.get('/api/health', (req: Request, res: Response) => {
 
 // Fast SSE Streaming Chat endpoint (words appear as they are generated)
 app.post('/api/chat/stream', async (req: Request, res: Response) => {
-  const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto', locale } = req.body || {};
+  const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
 
   if (!message && !image) {
-    return res.status(400).json({ error: 'संदेश या फ़ोटो दीजिए।' });
+    return res.status(400).json({ error: 'Please send a message or a photo.' });
   }
 
   res.setHeader('Content-Type', 'text/event-stream');
@@ -726,7 +698,7 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
 
   try {
     const ai = getGeminiClient();
-    const systemInstruction = buildSystemInstruction(personaTone, mode, locale);
+    const systemInstruction = buildSystemInstruction(personaTone, mode);
     const contents = buildContents(history, message, image);
     const followUpFilter = new FollowUpStreamFilter();
 
@@ -744,7 +716,7 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
     }
     const modelFollowUps = markerWasMidAnswer ? [] : followUpFilter.followUps();
     const followUps = streamResult.isError
-      ? ['दोबारा कोशिश करें']
+      ? ['Try again']
       : modelFollowUps.length
         ? modelFollowUps
         : getFollowUps(detectedCategory);
@@ -754,7 +726,7 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Streaming Chat API Error:', error);
     res.write(`data: ${JSON.stringify({ chunk: formatErrorMessage(error) })}\n\n`);
-    res.write(`data: ${JSON.stringify({ done: true, isError: true, category: 'general', suggestedFollowUps: ['दोबारा कोशिश करें'] })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, isError: true, category: 'general', suggestedFollowUps: ['Try again'] })}\n\n`);
     res.end();
   }
 });
@@ -762,14 +734,14 @@ app.post('/api/chat/stream', async (req: Request, res: Response) => {
 // Standard non-streaming chat endpoint (client falls back to this if streaming fails)
 app.post('/api/chat', async (req: Request, res: Response) => {
   try {
-    const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto', locale } = req.body || {};
+    const { message, history = [], image, personaTone = 'samajhdar_dost', mode = 'auto' } = req.body || {};
 
     if (!message && !image) {
-      return res.status(400).json({ error: 'संदेश या फ़ोटो दीजिए।' });
+      return res.status(400).json({ error: 'Please send a message or a photo.' });
     }
 
     const ai = getGeminiClient();
-    const systemInstruction = buildSystemInstruction(personaTone, mode, locale);
+    const systemInstruction = buildSystemInstruction(personaTone, mode);
     const contents = buildContents(history, message, image);
 
     const { text: rawText, isError } = await generateWithFallback(ai, contents, systemInstruction);
@@ -777,10 +749,10 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     const detectedCategory = resolveCategory(mode, message, image);
 
     res.json({
-      text: text || 'दोस्त, जवाब तैयार है!',
+      text: text || 'Your answer is ready!',
       category: detectedCategory,
       suggestedFollowUps: isError
-        ? ['दोबारा कोशिश करें']
+        ? ['Try again']
         : modelFollowUps.length
           ? modelFollowUps
           : getFollowUps(detectedCategory),
@@ -800,15 +772,15 @@ app.post('/api/quick-action', async (req: Request, res: Response) => {
 
     let prompt = '';
     if (actionType === 'joke') {
-      prompt = 'दोस्त, मुझे एक बिल्कुल ताज़ा, परिवार-फ्रेंडली, दिल को छूने वाला और मज़ेदार देसी जोक सुनाइए जो सुनकर दिल खुश हो जाए!';
+      prompt = 'Tell me a fresh, family-friendly, feel-good and funny joke that will make my day!';
     } else if (actionType === 'shayari') {
-      prompt = 'दोस्त, ज़िंदगी, दोस्ती या हौसले पर 2-4 पंक्तियों की खूबसूरत, गहरी और सकारात्मक शायरी सुनाइए।';
+      prompt = 'Recite a beautiful, deep and positive 2-4 line verse about life, friendship or courage.';
     } else if (actionType === 'daily_thought') {
-      prompt = 'आज के दिन के लिए एक प्यारा, ऊर्जावान और प्रेरणादायक "दोस्त का संदेश / रोज़ का हौसला" दीजिए (2-3 पंक्तियाँ) गर्मजोशी के साथ।';
+      prompt = 'Give me a warm, energetic and inspiring "friend\'s message / daily boost" for today (2-3 lines).';
     } else if (actionType === 'paheli') {
-      prompt = 'एक मज़ेदार देसी पहेली (riddle) पूछिए। पहेली और उसका संकेत दीजिए, और जवाब सबसे नीचे "जवाब:" के साथ दीजिए।';
+      prompt = 'Ask a fun riddle. Give the riddle and a hint, and put the answer at the bottom after "Answer:".';
     } else {
-      prompt = 'एक मित्रवत दोस्त की तरह 2 पंक्तियों में पूछिए कि आज मैं किस चीज़ में मदद कर सकता हूँ।';
+      prompt = 'Like a friendly companion, ask me in 2 lines what I could use help with today.';
     }
 
     const { text, isError } = await generateWithFallback(ai, prompt, BASE_SYSTEM_INSTRUCTION);
@@ -821,7 +793,7 @@ app.post('/api/quick-action', async (req: Request, res: Response) => {
 
 // Unknown API routes return JSON instead of the SPA page
 app.use('/api', (req: Request, res: Response) => {
-  res.status(404).json({ error: 'यह API route नहीं मिला।' });
+  res.status(404).json({ error: 'This API route was not found.' });
 });
 
 async function startServer() {

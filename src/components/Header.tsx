@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { PersonaProfile } from '../types';
 import { useLanguage } from '../i18n/LanguageContext';
-import { LanguagePicker } from './LanguagePicker';
 
 interface HeaderProps {
   currentPersona: PersonaProfile;
@@ -80,9 +79,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Center / Right: Quick Tool Buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Language switcher */}
-          <LanguagePicker />
-
           {/* Persona flavor switch */}
           <button
             id="btn-persona-selector"
