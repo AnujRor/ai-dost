@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Sparkles,
   FileText,
   RotateCcw,
   Info,
@@ -16,7 +15,6 @@ interface HeaderProps {
   currentPersona: PersonaProfile;
   onOpenPersonaModal: () => void;
   onOpenDocModal: () => void;
-  onOpenBoosterModal: () => void;
   onOpenAboutModal: () => void;
   onToggleSidebar: () => void;
   onNewChat: () => void;
@@ -29,7 +27,6 @@ export const Header: React.FC<HeaderProps> = ({
   currentPersona,
   onOpenPersonaModal,
   onOpenDocModal,
-  onOpenBoosterModal,
   onOpenAboutModal,
   onToggleSidebar,
   onNewChat,
@@ -102,17 +99,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <FileText className="w-3.5 h-3.5 text-blue-600" />
             <span className="hidden sm:inline">{t('header.billNoticeLabel')}</span>
-          </button>
-
-          {/* Daily Booster / Mood Refresher */}
-          <button
-            id="btn-header-booster"
-            onClick={onOpenBoosterModal}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/40 hover:bg-white/70 text-orange-950 border border-white/50 backdrop-blur-sm transition-all active:scale-95 shadow-2xs"
-            title={t('header.boosterTitle')}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-            <span className="hidden sm:inline">{t('header.boosterLabel')}</span>
           </button>
 
           {/* Audio TTS toggle */}

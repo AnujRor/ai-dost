@@ -7,7 +7,6 @@ import { WelcomeHero } from './components/WelcomeHero';
 import { Sidebar } from './components/Sidebar';
 import { PersonaSelectorModal } from './components/PersonaSelectorModal';
 import { DocumentHelperModal } from './components/DocumentHelperModal';
-import { BoosterModal } from './components/BoosterModal';
 import { AboutModal } from './components/AboutModal';
 
 import { ChatMessage, ChatSession, DostCategory, PersonaProfile } from './types';
@@ -93,7 +92,6 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPersonaModalOpen, setIsPersonaModalOpen] = useState(false);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
-  const [isBoosterModalOpen, setIsBoosterModalOpen] = useState(false);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   // Auto-scroll ref
@@ -399,16 +397,6 @@ export default function App() {
     }
   };
 
-  // Quick 1-tap booster handler
-  const handleQuickAction = async (actionType: 'joke' | 'shayari' | 'daily_thought' | 'paheli') => {
-    let promptTitle = t('app.jokeTitle');
-    if (actionType === 'shayari') promptTitle = t('app.shayariTitle');
-    if (actionType === 'daily_thought') promptTitle = t('app.motivationTitle');
-    if (actionType === 'paheli') promptTitle = t('app.paheliTitle');
-
-    handleSendMessage(t('app.playPrompt', { title: promptTitle }), undefined, 'fun');
-  };
-
   // Re-explain simpler
   const handleReExplain = (contextText: string) => {
     handleSendMessage(t('app.reexplainPrompt'), undefined, 'explain');
@@ -507,7 +495,6 @@ export default function App() {
         currentPersona={currentPersona}
         onOpenPersonaModal={() => setIsPersonaModalOpen(true)}
         onOpenDocModal={() => setIsDocModalOpen(true)}
-        onOpenBoosterModal={() => setIsBoosterModalOpen(true)}
         onOpenAboutModal={() => setIsAboutModalOpen(true)}
         onToggleSidebar={() => setIsSidebarOpen(true)}
         onNewChat={handleNewChat}
@@ -585,13 +572,6 @@ export default function App() {
           const fileInput = document.getElementById('file-input-image') as HTMLInputElement;
           fileInput?.click();
         }}
-      />
-
-      {/* Daily Mood Booster Modal */}
-      <BoosterModal
-        isOpen={isBoosterModalOpen}
-        onClose={() => setIsBoosterModalOpen(false)}
-        onTriggerAction={handleQuickAction}
       />
 
       {/* About & Guide Modal */}

@@ -21,8 +21,6 @@ export const en = {
   'header.modeLabel': 'Mode:',
   'header.billDocTitle': 'Explain a bill or document',
   'header.billNoticeLabel': 'Bill / Notice',
-  'header.boosterTitle': 'Jokes, shayari, daily motivation',
-  'header.boosterLabel': 'Booster',
   'header.voiceOn': 'Friend’s voice: on',
   'header.voiceOff': 'Friend’s voice: off (mute)',
   'header.toggleVoice': 'Toggle voice output',
@@ -82,7 +80,6 @@ export const en = {
   'input.shiftEnter': 'Shift + Enter for a new line',
 
   // ---------- welcome hero ----------
-  'welcome.badge': 'Your friend who shows up in every mode',
   'welcome.greeting': 'Hello! I am',
   'welcome.brand': 'My AI Dost',
 
@@ -119,19 +116,6 @@ export const en = {
   'doc.samples': 'Or try these sample scenarios:',
   'doc.footer': 'My AI Dost explains it straight and simple, without any jargon.',
 
-  // ---------- booster modal ----------
-  'booster.title': 'Instant mood booster',
-  'booster.subtitle': 'One tap with your friend',
-  'booster.footer': 'Your friend is always ready to make your day better!',
-  'booster.joke.title': 'Desi joke & laughs',
-  'booster.joke.desc': 'Fresh, clean and funny jokes that put a smile on your face.',
-  'booster.shayari.title': 'Beautiful shayari',
-  'booster.shayari.desc': '2-4 heart-touching lines about life, friendship or courage.',
-  'booster.thought.title': 'Your friend’s daily message',
-  'booster.thought.desc': 'Start the day with positive vibes and energy.',
-  'booster.paheli.title': 'Brain teaser (riddle)',
-  'booster.paheli.desc': 'A clever riddle that gives your brain a little workout!',
-
   // ---------- about modal ----------
   'about.title': 'AI Dost — your all-in-one companion',
   'about.subtitle': 'Friendly, simple, warm and completely judgement-free',
@@ -162,11 +146,6 @@ export const en = {
   'app.networkError': 'Your friend hit a small network issue: “{error}”. Please try once more.',
   'app.geminiKeyError':
     '⚠️ **Google AI Studio API Key needs an update**\n\nGoogle has blocked access to the project behind your current Gemini API Key.\n\n**How to fix it:**\n1. Click **Settings > Secrets** at the top-right of AI Studio.\n2. Add a new, active **GEMINI_API_KEY**.\n3. As soon as you save, your **AI Dost** will start replying again instantly!',
-  'app.jokeTitle': 'a funny joke',
-  'app.shayariTitle': 'a lovely shayari',
-  'app.motivationTitle': 'today’s motivation',
-  'app.paheliTitle': 'a brain teaser',
-  'app.playPrompt': 'Friend, please tell me {title}!',
   'app.reexplainPrompt': 'Friend, explain this in even simpler words with a real-life example.',
   'app.docPrompt': 'Please explain this document/situation and guide me:\n\n{text}',
   'app.exportAssistant': 'My AI Dost ({name})',

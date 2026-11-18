@@ -27,7 +27,7 @@
   background: rgba(255, 255, 255, 0.6);
 }
 
-/* Hide scrollbar on horizontal pill rows (category bar, boosters) */
+/* Hide scrollbar on horizontal pill rows (category bar) */
 @utility no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;

@@ -170,6 +170,7 @@ curl -s -X POST localhost:3000/api/chat -H "content-type: application/json" -d "
 - User-visible server messages bhi English: API-key/limit error cards, `Try again` chips, `getFollowUps()` fallback chips, "answer stopped midway" note, 400/404 errors, quick-action prompts aur `IMAGE_ONLY_PROMPT` (taaki model ko Hindi prompt se bias na mile). Model instructions (`LANGUAGE_RULE`, `BASE_SYSTEM_INSTRUCTION`, persona/mode blocks) Hindi me hi hain — woh screen par nahi dikhte.
 - **Welcome screen simplify:** "My 4 main jobs" wale chaar cards, intro paragraph aur "Talk in any language" / "Zero judgement & full privacy" badges hata diye. Ab sirf badge + avatar/greeting rehta hai. 15 unused `welcome.*` keys bhi delete.
 - **Boosters toolbar + popular prompts hataye:** neeche wala "Boosters:" toolbar (joke/shayari/motivation/riddle) aur welcome ka "Popular questions & topics" grid dono remove. `QuickActionToolbar.tsx` delete; `getQuickPrompts()` + `QuickPromptItem` type aur `qa.*` / `prompt.*` keys bhi. Header ka Booster button aur `BoosterModal` abhi bhi maujood hai (same 4 actions modal me).
+- **Booster feature poora hataya:** header ka "Booster" button + `BoosterModal.tsx` + `handleQuickAction` + `booster.*`/`header.booster*`/`app.*Title` keys delete; ab `canvas-confetti` dependency ki bhi zaroorat nahi. Welcome banner se "Your friend who shows up in every mode" badge bhi hata diya — ab sirf avatar + "Hello! I am My AI Dost" rehta hai.
 
 **Verified**
 - `npm run lint` ✅, `npx vite build` ✅.
