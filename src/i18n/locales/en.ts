@@ -85,34 +85,7 @@ export const en = {
   'welcome.badge': 'Your friend who shows up in every mode',
   'welcome.greeting': 'Hello! I am',
   'welcome.brand': 'My AI Dost',
-  'welcome.intro':
-    'Whether you want a topic explained, your mood lifted, smart reply suggestions for WhatsApp, or just some fun — I am always here for you.',
-  'welcome.tagAnyLanguage': 'Talk in any language',
-  'welcome.tagPrivacy': 'Zero judgement & full privacy',
-  'welcome.myTasks': 'My 4 main jobs',
-  'welcome.tapAny': 'Tap any one',
-  'welcome.try': 'Try',
   'welcome.popular': 'Popular questions & topics',
-  'welcome.p1.title': '1. EXPLAIN',
-  'welcome.p1.sub': 'Learning & documents',
-  'welcome.p1.desc':
-    'Bills, tricky topics, government notices, prescriptions or confusing text — explained in plain, simple words.',
-  'welcome.p1.sample': 'Explain my electricity bill and the subsidy',
-  'welcome.p2.title': '2. HEART TALK',
-  'welcome.p2.sub': 'Motivation & support',
-  'welcome.p2.desc':
-    'Low mood, stress, or you just want to talk — a real friend listens without judging and gives you courage.',
-  'welcome.p2.sample': 'I am tired and stressed today, let’s talk',
-  'welcome.p3.title': '3. ADVICE & REPLIES',
-  'welcome.p3.sub': 'Decisions & messages',
-  'welcome.p3.desc':
-    'What to reply on WhatsApp, how to ask your boss for leave, or which way to decide — 2-3 ready options.',
-  'welcome.p3.sample': 'Give me 3 ready messages to ask my boss for leave',
-  'welcome.p4.title': '4. FUN & LAUGHS',
-  'welcome.p4.sub': 'Jokes, shayari & stories',
-  'welcome.p4.desc':
-    'Funny desi jokes, heart-touching shayari, riddles or entertaining stories to brighten your day.',
-  'welcome.p4.sample': 'Tell me a fresh funny desi joke',
 
   // ---------- quick actions toolbar ----------
   'qa.heading': 'Boosters:',

@@ -168,6 +168,7 @@ curl -s -X POST localhost:3000/api/chat -H "content-type: application/json" -d "
 - `speech.ts`: naya `detectSpeechLang()` reply text ke script se TTS language chunta hai (Devanagari/Bengali/Tamil/Telugu/Gujarati/Gurmukhi/Arabic/Urdu/Han/Japanese/Korean/Cyrillic/Hebrew/Thai), aur `pickVoice()` matching voice + sensible fallback. Recognition default ab `navigator.language`. Error string English.
 - `index.html`: `lang="en-IN"`, title/description/keywords/OG/Twitter/JSON-LD/FAQ/`<noscript>` sab English; Rozha One + Yatra One Devanagari fonts hata diye (sirf Plus Jakarta Sans). `public/site.webmanifest` English + `lang: en-IN`.
 - User-visible server messages bhi English: API-key/limit error cards, `Try again` chips, `getFollowUps()` fallback chips, "answer stopped midway" note, 400/404 errors, quick-action prompts aur `IMAGE_ONLY_PROMPT` (taaki model ko Hindi prompt se bias na mile). Model instructions (`LANGUAGE_RULE`, `BASE_SYSTEM_INSTRUCTION`, persona/mode blocks) Hindi me hi hain — woh screen par nahi dikhte.
+- **Welcome screen simplify:** "My 4 main jobs" wale chaar cards, intro paragraph aur "Talk in any language" / "Zero judgement & full privacy" badges hata diye. Ab sirf badge + avatar/greeting + "Popular questions & topics" grid rehta hai. 15 unused `welcome.*` keys bhi delete.
 
 **Verified**
 - `npm run lint` ✅, `npx vite build` ✅.
